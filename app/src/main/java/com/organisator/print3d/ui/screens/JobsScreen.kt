@@ -52,6 +52,7 @@ fun JobsScreen(
     var query by rememberSaveable { mutableStateOf("") }
     var statusFilter by rememberSaveable { mutableStateOf(initialStatusFilter) }
     val dark = isSystemInDarkTheme()
+    val neutralChipColor = MaterialTheme.colorScheme.primary
 
     val projectsById = remember(state.projects) { state.projects.associateBy { it.id } }
     val redoByJob = remember(state.parts) {
@@ -105,7 +106,7 @@ fun JobsScreen(
                 selected = statusFilter,
                 onSelect = { statusFilter = it },
                 labelOf = { it?.label ?: "Tous" },
-                colorOf = { status -> status?.let { StatusPalette.color(it, dark) } ?: MaterialTheme.colorScheme.primary }
+                colorOf = { status -> status?.let { StatusPalette.color(it, dark) } ?: neutralChipColor }
             )
         }
 

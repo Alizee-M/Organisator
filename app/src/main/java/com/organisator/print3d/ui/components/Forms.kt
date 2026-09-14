@@ -2,7 +2,9 @@
 
 package com.organisator.print3d.ui.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -135,32 +137,36 @@ fun DateTimeField(
 ) {
     var showPicker by remember { mutableStateOf(false) }
 
-    OutlinedTextField(
-        value = value?.let { formatDateTime(it) } ?: "",
-        onValueChange = {},
-        readOnly = true,
-        enabled = false,
-        label = { Text(label) },
-        placeholder = { Text("Non planifié") },
-        trailingIcon = {
-            if (value != null) {
-                IconButton(onClick = { onChange(null) }) {
-                    Icon(Icons.Outlined.Close, contentDescription = "Effacer")
-                }
-            }
-        },
-        shape = RoundedCornerShape(14.dp),
-        colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
-            disabledTextColor = MaterialTheme.colorScheme.onSurface,
-            disabledBorderColor = MaterialTheme.colorScheme.outline,
-            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
-        ),
-        modifier = modifier
-            .fillMaxWidth()
-            .clickableNoRipple { showPicker = true }
-    )
+    Column(modifier = modifier.fillMaxWidth()) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedTextField(
+                value = value?.let { formatDateTime(it) } ?: "",
+                onValueChange = {},
+                readOnly = true,
+                enabled = false,
+                label = { Text(label) },
+                placeholder = { Text("Non planifié") },
+                shape = RoundedCornerShape(14.dp),
+                colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                    disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                    disabledBorderColor = MaterialTheme.colorScheme.outline,
+                    disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                modifier = Modifier.fillMaxWidth()
+            )
+            // Le champ est désactivé pour rester en lecture seule : la zone cliquable
+            // est posée par-dessus pour ouvrir le sélecteur.
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .clickable { showPicker = true }
+            )
+        }
+        if (value != null) {
+            TextButton(onClick = { onChange(null) }) { Text("Effacer") }
+        }
+    }
 
     if (showPicker) {
         DateTimePickerDialog(
@@ -173,16 +179,6 @@ fun DateTimeField(
         )
     }
 }
-
-@Composable
-private fun Modifier.clickableNoRipple(onClick: () -> Unit): Modifier =
-    this.then(
-        androidx.compose.foundation.clickable(
-            interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
-            indication = null,
-            onClick = onClick
-        )
-    )
 
 @Composable
 fun DateTimePickerDialog(

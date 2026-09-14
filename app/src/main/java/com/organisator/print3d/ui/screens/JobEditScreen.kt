@@ -304,7 +304,7 @@ fun JobEditScreen(
                         material = material.trim(),
                         filamentColor = filamentColor.trim(),
                         status = status,
-                        scalePercent = scale.toIntOrZero().coerceIn(1, 1000).let { if (it == 0) 100 else it },
+                        scalePercent = scale.toIntOrZero().let { if (it <= 0) 100 else it }.coerceAtMost(1000),
                         quantity = quantity.toIntOrZero().coerceAtLeast(1),
                         estimatedMinutes = est,
                         actualMinutes = real,

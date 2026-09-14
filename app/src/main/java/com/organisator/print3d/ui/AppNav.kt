@@ -2,7 +2,6 @@
 
 package com.organisator.print3d.ui
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -41,7 +40,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.organisator.print3d.data.JobStatus
 import com.organisator.print3d.data.PrintPart
 import com.organisator.print3d.ui.screens.DashboardScreen
 import com.organisator.print3d.ui.screens.JobDetailScreen
@@ -131,7 +129,7 @@ fun OrganisatorNavHost(
             }
         },
         floatingActionButton = {
-            AnimatedVisibility(visible = tab != null && tab != Tab.STATS) {
+            if (tab != null && tab != Tab.STATS) {
                 FloatingActionButton(
                     onClick = {
                         if (tab == Tab.PROJECTS) navController.navigate("projectEdit/0")
@@ -338,6 +336,3 @@ private fun MissingScreen(message: String, onBack: () -> Unit) {
         }
     }
 }
-
-/** Statuts déclenchant une action rapide depuis le tableau de bord. */
-internal val QUICK_STATUSES = listOf(JobStatus.EN_COURS, JobStatus.TERMINE, JobStatus.A_REFAIRE)
