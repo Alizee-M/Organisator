@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.organisator.print3d.ui.theme.AppIcons
 import com.organisator.print3d.data.JobStatus
 import com.organisator.print3d.data.PrintJob
 import com.organisator.print3d.data.Settings
@@ -118,7 +118,7 @@ fun JobRow(
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 if (scheduled != null && job.status != JobStatus.TERMINE) {
                     IconLine(
-                        icon = { Icon(Icons.Outlined.Schedule, null, Modifier.size(13.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant) },
+                        icon = { Icon(AppIcons.Horloge, null, Modifier.size(13.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant) },
                         text = "Prévu ${formatDateTime(scheduled)} · ${formatRelative(scheduled, now)}"
                     )
                 }

@@ -21,8 +21,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -84,7 +84,7 @@ fun ProjectEditScreen(
                     if (existing != null) {
                         IconButton(onClick = { showDelete = true }) {
                             Icon(
-                                Icons.Outlined.DeleteOutline,
+                                Icons.Outlined.Delete,
                                 contentDescription = "Supprimer",
                                 tint = MaterialTheme.colorScheme.error
                             )

@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,6 +29,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.organisator.print3d.ui.theme.AppIcons
 import com.organisator.print3d.data.JobStatus
 import com.organisator.print3d.data.PartStatus
 import com.organisator.print3d.ui.AppState
@@ -134,7 +134,7 @@ fun JobsScreen(
         if (filtered.isEmpty() && state.loaded) {
             item {
                 EmptyState(
-                    icon = Icons.Outlined.Inventory2,
+                    icon = AppIcons.Plateau,
                     title = if (state.jobs.isEmpty()) "Aucun plateau" else "Aucun résultat",
                     message = if (state.jobs.isEmpty())
                         "Ajoutez un plateau pour commencer le suivi."

@@ -13,8 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AddCircleOutline
-import androidx.compose.material.icons.outlined.Inventory2
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -24,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.organisator.print3d.ui.theme.AppIcons
 import com.organisator.print3d.data.JobStatus
 import com.organisator.print3d.data.PrintJob
 import com.organisator.print3d.data.StatsEngine
@@ -209,7 +209,7 @@ fun DashboardScreen(
         if (jobs.isEmpty() && state.loaded) {
             item {
                 EmptyState(
-                    icon = Icons.Outlined.Inventory2,
+                    icon = AppIcons.Plateau,
                     title = "Aucun plateau",
                     message = "Créez votre premier plateau pour suivre son temps, son coût et son résultat.",
                     actionLabel = "Nouveau plateau",
@@ -239,7 +239,7 @@ fun DashboardScreen(
                         Spacer(Modifier.width(10.dp))
                         OutlinedButton(onClick = onNewJob) {
                             androidx.compose.material3.Icon(
-                                Icons.Outlined.AddCircleOutline,
+                                Icons.Outlined.Add,
                                 contentDescription = null,
                                 modifier = Modifier.width(18.dp)
                             )

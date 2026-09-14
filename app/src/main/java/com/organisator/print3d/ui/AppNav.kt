@@ -9,10 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Inventory2
-import androidx.compose.material.icons.outlined.QueryStats
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -40,6 +37,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.organisator.print3d.ui.theme.AppIcons
 import com.organisator.print3d.data.PrintPart
 import com.organisator.print3d.ui.screens.DashboardScreen
 import com.organisator.print3d.ui.screens.JobDetailScreen
@@ -57,9 +55,9 @@ private enum class Tab(
     val icon: ImageVector
 ) {
     DASHBOARD("dashboard", "Atelier", Icons.Outlined.Home),
-    JOBS("jobs", "Plateaux", Icons.Outlined.Inventory2),
-    PROJECTS("projects", "Projets", Icons.Outlined.FolderOpen),
-    STATS("stats", "Stats", Icons.Outlined.QueryStats)
+    JOBS("jobs", "Plateaux", AppIcons.Plateau),
+    PROJECTS("projects", "Projets", AppIcons.Projet),
+    STATS("stats", "Stats", AppIcons.Stats)
 }
 
 @Composable

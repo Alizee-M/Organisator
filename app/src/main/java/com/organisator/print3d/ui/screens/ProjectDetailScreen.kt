@@ -15,7 +15,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -28,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.organisator.print3d.ui.theme.AppIcons
 import com.organisator.print3d.data.JobStatus
 import com.organisator.print3d.data.PartStatus
 import com.organisator.print3d.data.Project
@@ -86,7 +86,7 @@ fun ProjectDetailScreen(
             ExtendedFloatingActionButton(
                 onClick = onNewJob,
                 text = { Text("Plateau") },
-                icon = { Icon(Icons.Outlined.Inventory2, contentDescription = null) }
+                icon = { Icon(AppIcons.Plateau, contentDescription = null) }
             )
         }
     ) { padding ->
@@ -172,7 +172,7 @@ fun ProjectDetailScreen(
             if (jobs.isEmpty()) {
                 item {
                     EmptyState(
-                        icon = Icons.Outlined.Inventory2,
+                        icon = AppIcons.Plateau,
                         title = "Aucun plateau",
                         message = "Ajoutez un premier plateau à ce projet.",
                         actionLabel = "Nouveau plateau",

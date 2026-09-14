@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.organisator.print3d.ui.theme.AppIcons
 import com.organisator.print3d.data.JobStatus
 import com.organisator.print3d.data.PrintJob
 import com.organisator.print3d.data.Project
@@ -101,7 +101,7 @@ fun ProjectsScreen(
         if (state.projects.isEmpty() && state.loaded) {
             item {
                 EmptyState(
-                    icon = Icons.Outlined.FolderOpen,
+                    icon = AppIcons.Projet,
                     title = "Aucun projet",
                     message = "Créez un projet pour regrouper plusieurs plateaux et suivre son coût total.",
                     actionLabel = "Nouveau projet",
