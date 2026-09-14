@@ -81,6 +81,8 @@ fun OrganisatorNavHost(
     val currentRoute = backStackEntry?.destination?.route
     val tab = Tab.entries.firstOrNull { it.route == currentRoute }
 
+    LaunchedEffect(Unit) { viewModel.cleanupPhotos() }
+
     LaunchedEffect(deepLinkJobId) {
         val id = deepLinkJobId ?: return@LaunchedEffect
         navController.navigate("job/$id")
@@ -306,6 +308,8 @@ fun OrganisatorNavHost(
                 val existing = state.projects.firstOrNull { it.id == projectId }
                 ProjectEditScreen(
                     existing = existing,
+                    onPickPhoto = { uri, onImported -> viewModel.importProjectPhoto(uri, onImported) },
+                    onDiscardPhoto = viewModel::discardProjectPhoto,
                     onSave = { project ->
                         viewModel.saveProject(project) { navController.popBackStack() }
                     },

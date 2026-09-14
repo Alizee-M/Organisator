@@ -38,6 +38,12 @@ data class Project(
     val colorHex: String = "#6C7BFF",
     val status: ProjectStatus = ProjectStatus.EN_COURS,
     val deadline: Long? = null,
+    /**
+     * Chemin absolu de la photo du projet, recopiée dans le stockage privé de
+     * l'application : les URI rendus par le sélecteur système ne restent pas
+     * lisibles après le redémarrage du téléphone.
+     */
+    val photoPath: String? = null,
     val createdAt: Long = System.currentTimeMillis()
 )
 

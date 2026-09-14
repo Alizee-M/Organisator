@@ -2,6 +2,9 @@
 
 package com.organisator.print3d.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -39,8 +42,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.aspectRatio
+import com.organisator.print3d.ui.components.LocalImage
 import com.organisator.print3d.data.Project
 import com.organisator.print3d.data.ProjectStatus
 import com.organisator.print3d.ui.components.AppCard
@@ -61,6 +68,8 @@ fun ProjectEditScreen(
     existing: Project?,
     onSave: (Project) -> Unit,
     onDelete: (Project) -> Unit,
+    onPickPhoto: (android.net.Uri, (String?) -> Unit) -> Unit,
+    onDiscardPhoto: (String?) -> Unit,
     onBack: () -> Unit
 ) {
     val dark = isSystemInDarkTheme()
@@ -69,7 +78,24 @@ fun ProjectEditScreen(
     var colorHex by remember(existing) { mutableStateOf(existing?.colorHex ?: PROJECT_COLORS.first()) }
     var status by remember(existing) { mutableStateOf(existing?.status ?: ProjectStatus.EN_COURS) }
     var deadline by remember(existing) { mutableStateOf(existing?.deadline) }
+    var photoPath by remember(existing) { mutableStateOf(existing?.photoPath) }
+    var importing by remember { mutableStateOf(false) }
     var showDelete by remember { mutableStateOf(false) }
+
+    val photoPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
+        importing = true
+        onPickPhoto(uri) { imported ->
+            importing = false
+            if (imported != null) {
+                // La photo remplacée n'est plus référencée nulle part.
+                if (photoPath != existing?.photoPath) onDiscardPhoto(photoPath)
+                photoPath = imported
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -127,6 +153,56 @@ fun ProjectEditScreen(
             }
 
             AppCard {
+                SectionHeader(
+                    title = "Photo",
+                    subtitle = if (photoPath == null) "Une image du projet, facultative"
+                    else "Touchez l'image pour la remplacer"
+                )
+                Spacer(Modifier.height(12.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 10f)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .clickable {
+                            photoPicker.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (photoPath != null) {
+                        LocalImage(
+                            path = photoPath,
+                            contentDescription = "Photo du projet",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        Text(
+                            text = if (importing) "Import en cours…" else "Ajouter une photo",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                if (photoPath != null) {
+                    Spacer(Modifier.height(4.dp))
+                    Row {
+                        TextButton(onClick = {
+                            photoPicker.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        }) { Text("Remplacer") }
+                        TextButton(onClick = {
+                            if (photoPath != existing?.photoPath) onDiscardPhoto(photoPath)
+                            photoPath = null
+                        }) { Text("Retirer") }
+                    }
+                }
+            }
+
+            AppCard {
                 SectionHeader("Couleur", subtitle = "Pour repérer le projet d'un coup d'œil")
                 Spacer(Modifier.height(12.dp))
                 FlowRow(
@@ -166,7 +242,8 @@ fun ProjectEditScreen(
                             description = description.trim(),
                             colorHex = colorHex,
                             status = status,
-                            deadline = deadline
+                            deadline = deadline,
+                            photoPath = photoPath
                         )
                     )
                 },

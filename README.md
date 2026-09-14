@@ -20,7 +20,9 @@ s'il reste des pièces à refaire. Chaque pièce du plateau peut être listée e
 suivie individuellement (`À faire` → `Imprimée` → `À refaire`).
 
 **Projets** — regroupent plusieurs plateaux, avec avancement, temps et coût
-cumulés, couleur de repérage et échéance. La liste des plateaux se filtre par
+cumulés, photo, couleur de repérage et échéance. La photo est choisie dans la
+galerie puis recopiée, redimensionnée, dans le stockage privé de l'application :
+elle reste lisible après un redémarrage et suit la sauvegarde du téléphone. La liste des plateaux se filtre par
 projet et se regroupe par projet, avec le total de chaque section.
 
 **Statistiques** — échelle de temps au choix (7 j, 30 j, 90 j, 1 an, tout) :
@@ -81,6 +83,8 @@ attaché.
   migration versionnée.
 - **AlarmManager** pour les rappels, réarmés au boot.
 - Graphiques dessinés au `Canvas`, sans dépendance externe.
+- Photos de projet recopiées dans `files/project_photos`, décodées hors du fil
+  principal ; aucune permission de stockage n'est demandée.
 - Tout reste sur l'appareil : aucun compte, aucun réseau.
 
 ```

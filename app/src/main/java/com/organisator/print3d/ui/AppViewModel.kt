@@ -1,6 +1,7 @@
 package com.organisator.print3d.ui
 
 import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -14,6 +15,7 @@ import com.organisator.print3d.data.Settings
 import com.organisator.print3d.data.StatsEngine
 import com.organisator.print3d.data.StatsRange
 import com.organisator.print3d.data.StatsSummary
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,6 +24,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class AppState(
     val jobs: List<PrintJob> = emptyList(),
@@ -111,6 +114,23 @@ class AppViewModel(private val repository: PrintRepository) : ViewModel() {
     }
 
     fun deleteProject(project: Project) = viewModelScope.launch { repository.deleteProject(project) }
+
+    /**
+     * Recopie la photo choisie hors du fil principal, puis rend son chemin local.
+     * [onImported] reçoit null si l'image n'a pas pu être lue.
+     */
+    fun importProjectPhoto(uri: Uri, onImported: (String?) -> Unit) = viewModelScope.launch {
+        onImported(withContext(Dispatchers.IO) { repository.importPhoto(uri) })
+    }
+
+    fun discardProjectPhoto(path: String?) = viewModelScope.launch {
+        withContext(Dispatchers.IO) { repository.deletePhoto(path) }
+    }
+
+    /** Au démarrage, on efface les photos qu'aucun projet ne référence. */
+    fun cleanupPhotos() = viewModelScope.launch {
+        withContext(Dispatchers.IO) { repository.cleanupOrphanPhotos() }
+    }
 
     // --- Pièces -------------------------------------------------------------
 

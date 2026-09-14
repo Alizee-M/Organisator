@@ -1,8 +1,10 @@
 package com.organisator.print3d.data
 
 import android.content.Context
+import android.net.Uri
 import com.organisator.print3d.notifications.ReminderScheduler
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 /** Point d'entrée unique pour lire et modifier les données de l'application. */
 class PrintRepository(context: Context) {
@@ -14,6 +16,7 @@ class PrintRepository(context: Context) {
     private val scheduler = ReminderScheduler(context)
 
     val settingsStore = SettingsStore(context)
+    private val photoStore = PhotoStore(context)
 
     fun observeJobs(): Flow<List<PrintJob>> = jobDao.observeAll()
     fun observeProjects(): Flow<List<Project>> = projectDao.observeAll()
@@ -66,7 +69,21 @@ class PrintRepository(context: Context) {
             projectDao.update(project); project.id
         }
 
-    suspend fun deleteProject(project: Project) = projectDao.delete(project)
+    suspend fun deleteProject(project: Project) {
+        photoStore.delete(project.photoPath)
+        projectDao.delete(project)
+    }
+
+    /** Importe une photo et renvoie son chemin local, ou null si la lecture échoue. */
+    fun importPhoto(uri: Uri): String? = photoStore.import(uri)
+
+    fun deletePhoto(path: String?) = photoStore.delete(path)
+
+    /** Efface les photos qu'aucun projet ne référence (import abandonné, projet supprimé). */
+    suspend fun cleanupOrphanPhotos() {
+        val referenced = projectDao.observeAll().first().mapNotNull { it.photoPath }
+        photoStore.removeOrphans(referenced)
+    }
 
     suspend fun upsertPart(part: PrintPart): Long =
         if (part.id == 0L) partDao.insert(part) else {

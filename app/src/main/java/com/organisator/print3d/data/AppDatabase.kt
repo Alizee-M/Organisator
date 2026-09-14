@@ -13,7 +13,7 @@ import com.organisator.print3d.data.dao.ProjectDao
 
 @Database(
     entities = [Project::class, PrintJob::class, PrintPart::class],
-    version = 2,
+    version = 3,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -30,7 +30,14 @@ abstract class AppDatabase : RoomDatabase() {
                 context.applicationContext,
                 AppDatabase::class.java,
                 "organisator.db"
-            ).addMigrations(MIGRATION_1_2).build().also { instance = it }
+            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build().also { instance = it }
+        }
+
+        /** Ajout de la photo de projet. */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE `projects` ADD COLUMN `photoPath` TEXT")
+            }
         }
 
         /**

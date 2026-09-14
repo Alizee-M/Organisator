@@ -7,6 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -37,6 +41,7 @@ import com.organisator.print3d.ui.AppState
 import com.organisator.print3d.ui.components.AppCard
 import com.organisator.print3d.ui.components.EmptyState
 import com.organisator.print3d.ui.components.JobRow
+import com.organisator.print3d.ui.components.LocalImage
 import com.organisator.print3d.ui.components.ProgressBar
 import com.organisator.print3d.ui.components.SectionHeader
 import com.organisator.print3d.ui.components.StatTile
@@ -97,6 +102,19 @@ fun ProjectDetailScreen(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
+            if (project.photoPath != null) {
+                item {
+                    LocalImage(
+                        path = project.photoPath,
+                        contentDescription = "Photo du projet",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(16f / 10f)
+                            .clip(RoundedCornerShape(16.dp))
+                    )
+                }
+            }
+
             item {
                 Column {
                     Text(project.name, style = MaterialTheme.typography.headlineSmall)

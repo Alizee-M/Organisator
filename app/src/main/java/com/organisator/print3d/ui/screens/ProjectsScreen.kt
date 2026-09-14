@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,6 +37,7 @@ import com.organisator.print3d.data.totalCost
 import com.organisator.print3d.ui.AppState
 import com.organisator.print3d.ui.components.AppCard
 import com.organisator.print3d.ui.components.EmptyState
+import com.organisator.print3d.ui.components.LocalImage
 import com.organisator.print3d.ui.components.ProgressBar
 import com.organisator.print3d.ui.components.StatusChip
 import com.organisator.print3d.util.formatDate
@@ -126,12 +128,22 @@ private fun ProjectCard(
 
     AppCard(modifier = Modifier.clickable(onClick = onClick)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(10.dp)
-                    .clip(CircleShape)
-                    .background(color)
-            )
+            if (project.photoPath != null) {
+                LocalImage(
+                    path = project.photoPath,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .clip(CircleShape)
+                        .background(color)
+                )
+            }
             Spacer(Modifier.width(10.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
