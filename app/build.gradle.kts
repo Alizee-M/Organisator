@@ -32,11 +32,17 @@ android {
             // Clé de signature de sideload, versionnée volontairement : elle n'ouvre
             // aucun accès et garantit que les mises à jour s'installent par-dessus la
             // version précédente. Surchargeable par des secrets CI (voir .github/workflows).
-            val storePathEnv = System.getenv("ORGANISATOR_KEYSTORE")
-            storeFile = if (storePathEnv != null) file(storePathEnv) else rootProject.file("keystore/organisator-sideload.jks")
-            storePassword = System.getenv("ORGANISATOR_KEYSTORE_PASSWORD") ?: "organisator"
-            keyAlias = System.getenv("ORGANISATOR_KEY_ALIAS") ?: "organisator"
-            keyPassword = System.getenv("ORGANISATOR_KEY_PASSWORD") ?: "organisator"
+            //
+            // Une variable absente et une variable vide doivent être traitées pareil :
+            // GitHub Actions transmet un secret non défini comme une chaîne vide, ce qui
+            // produirait un alias et un mot de passe vides plutôt que les valeurs par défaut.
+            fun env(name: String): String? = System.getenv(name)?.takeIf { it.isNotBlank() }
+
+            storeFile = env("ORGANISATOR_KEYSTORE")?.let { file(it) }
+                ?: rootProject.file("keystore/organisator-sideload.jks")
+            storePassword = env("ORGANISATOR_KEYSTORE_PASSWORD") ?: "organisator"
+            keyAlias = env("ORGANISATOR_KEY_ALIAS") ?: "organisator"
+            keyPassword = env("ORGANISATOR_KEY_PASSWORD") ?: "organisator"
         }
     }
 
