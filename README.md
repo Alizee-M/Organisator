@@ -61,13 +61,15 @@ place.
 
 ## Publier une version
 
-Mettez à jour `version.properties`, puis poussez un tag :
+Mettez à jour `version.properties`, puis au choix :
 
-```bash
-git tag v1.0.0 && git push origin v1.0.0
-```
+- poussez un tag `git tag v1.0.1 && git push origin v1.0.1` ;
+- ou lancez le workflow « Build APK » depuis l'onglet Actions en cochant
+  « Publier une release GitHub avec l'APK » : le tag est alors déduit de
+  `version.properties`.
 
-Le workflow compile l'APK et crée la release GitHub avec le fichier attaché.
+Dans les deux cas le workflow compile l'APK et crée la release avec le fichier
+attaché.
 
 ## Architecture
 
