@@ -5,12 +5,13 @@ import kotlin.math.min
 
 /** Décomposition du coût d'un plateau, pour l'afficher poste par poste. */
 data class CostBreakdown(
-    val filament: Double,
+    val resin: Double,
     val energy: Double,
     val machine: Double,
+    val consumables: Double,
     val extra: Double
 ) {
-    val total: Double get() = filament + energy + machine + extra
+    val total: Double get() = resin + energy + machine + consumables + extra
 }
 
 /**
@@ -45,14 +46,20 @@ fun PrintJob.remainingMinutes(now: Long = System.currentTimeMillis()): Int? {
 }
 
 fun PrintJob.costBreakdown(settings: Settings, now: Long = System.currentTimeMillis()): CostBreakdown {
-    val pricePerKg = if (filamentPricePerKg > 0) filamentPricePerKg else settings.defaultFilamentPricePerKg
-    val filament = filamentGrams / 1000.0 * pricePerKg
+    val pricePerLitre = if (resinPricePerLitre > 0) resinPricePerLitre else settings.defaultResinPricePerLitre
+    val resin = resinMl / 1000.0 * pricePerLitre
     val hours = effectiveMinutes(now) / 60.0
     val energy = if (settings.includeEnergyInCost) {
         settings.printerWatts / 1000.0 * hours * settings.electricityPricePerKwh
     } else 0.0
     val machine = settings.hourlyMachineRate * hours
-    return CostBreakdown(filament = filament, energy = energy, machine = machine, extra = extraCost)
+    return CostBreakdown(
+        resin = resin,
+        energy = energy,
+        machine = machine,
+        consumables = settings.consumablesPerPrint,
+        extra = extraCost
+    )
 }
 
 fun PrintJob.totalCost(settings: Settings, now: Long = System.currentTimeMillis()): Double =

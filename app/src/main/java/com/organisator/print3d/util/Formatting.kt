@@ -52,10 +52,10 @@ fun formatMoney(amount: Double, currency: String): String {
     return String.format(FR, "%,.2f %s", rounded, currency)
 }
 
-fun formatGrams(grams: Double): String = when {
-    grams <= 0 -> "—"
-    grams >= 1000 -> String.format(FR, "%.2f kg", grams / 1000.0)
-    else -> String.format(FR, "%.0f g", grams)
+fun formatMillilitres(ml: Double): String = when {
+    ml <= 0 -> "—"
+    ml >= 1000 -> String.format(FR, "%.2f L", ml / 1000.0)
+    else -> String.format(FR, "%.0f mL", ml)
 }
 
 /** « dans 3 h », « il y a 2 j », pour les rappels et les échéances. */

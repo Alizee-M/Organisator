@@ -26,7 +26,7 @@ data class TimePoint(
     val jobs: Int
 )
 
-data class MaterialStat(val material: String, val grams: Double, val jobs: Int)
+data class ResinStat(val resinType: String, val ml: Double, val jobs: Int)
 
 data class ProjectStat(
     val project: Project,
@@ -48,13 +48,13 @@ data class StatsSummary(
     val queued: Int,
     val totalMinutes: Int,
     val totalCost: Double,
-    val totalGrams: Double,
+    val totalMl: Double,
     val successRate: Float,
     val avgMinutes: Int,
     val avgCost: Double,
     val byStatus: List<Pair<JobStatus, Int>>,
     val timeline: List<TimePoint>,
-    val materials: List<MaterialStat>,
+    val resins: List<ResinStat>,
     val projects: List<ProjectStat>
 )
 
@@ -91,7 +91,7 @@ object StatsEngine {
 
         val totalMinutes = jobs.sumOf { it.effectiveMinutes(now) }
         val totalCost = jobs.sumOf { it.totalCost(settings, now) }
-        val totalGrams = jobs.sumOf { it.filamentGrams }
+        val totalMl = jobs.sumOf { it.resinMl }
         val evaluated = finished + redo
         val successRate = if (evaluated == 0) 0f else finished.toFloat() / evaluated
 
@@ -101,12 +101,12 @@ object StatsEngine {
 
         val timeline = buildTimeline(jobs, settings, range, bucket, today, now)
 
-        val materials = jobs
-            .groupBy { it.material.trim().ifBlank { "Non précisé" } }
+        val resins = jobs
+            .groupBy { it.resinType.trim().ifBlank { "Non précisée" } }
             .map { (name, list) ->
-                MaterialStat(name, list.sumOf { it.filamentGrams }, list.size)
+                ResinStat(name, list.sumOf { it.resinMl }, list.size)
             }
-            .sortedByDescending { it.grams }
+            .sortedByDescending { it.ml }
 
         val jobsByProject = jobs.groupBy { it.projectId }
         val projectStats = projects.mapNotNull { project ->
@@ -130,13 +130,13 @@ object StatsEngine {
             queued = queued,
             totalMinutes = totalMinutes,
             totalCost = totalCost,
-            totalGrams = totalGrams,
+            totalMl = totalMl,
             successRate = successRate,
             avgMinutes = if (jobs.isEmpty()) 0 else totalMinutes / jobs.size,
             avgCost = if (jobs.isEmpty()) 0.0 else totalCost / jobs.size,
             byStatus = byStatus,
             timeline = timeline,
-            materials = materials,
+            resins = resins,
             projects = projectStats
         )
     }

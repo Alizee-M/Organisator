@@ -51,25 +51,27 @@ fun SettingsScreen(
     onBack: () -> Unit
 ) {
     var currency by remember(settings) { mutableStateOf(settings.currency) }
-    var filamentPrice by remember(settings) { mutableStateOf(settings.defaultFilamentPricePerKg.trimNumber()) }
+    var resinPrice by remember(settings) { mutableStateOf(settings.defaultResinPricePerLitre.trimNumber()) }
     var printer by remember(settings) { mutableStateOf(settings.defaultPrinter) }
-    var material by remember(settings) { mutableStateOf(settings.defaultMaterial) }
+    var resinType by remember(settings) { mutableStateOf(settings.defaultResinType) }
     var watts by remember(settings) { mutableStateOf(settings.printerWatts.trimNumber()) }
     var kwhPrice by remember(settings) { mutableStateOf(settings.electricityPricePerKwh.toString()) }
     var includeEnergy by remember(settings) { mutableStateOf(settings.includeEnergyInCost) }
     var machineRate by remember(settings) { mutableStateOf(settings.hourlyMachineRate.trimNumber()) }
+    var consumables by remember(settings) { mutableStateOf(settings.consumablesPerPrint.trimNumber()) }
 
     fun persist() {
         onSave(
             Settings(
                 currency = currency.trim().ifBlank { "€" },
-                defaultFilamentPricePerKg = filamentPrice.toDoubleOrZero(),
+                defaultResinPricePerLitre = resinPrice.toDoubleOrZero(),
                 defaultPrinter = printer.trim(),
-                defaultMaterial = material.trim().ifBlank { "PLA" },
+                defaultResinType = resinType.trim().ifBlank { "Résine standard" },
                 printerWatts = watts.toDoubleOrZero(),
                 electricityPricePerKwh = kwhPrice.toDoubleOrZero(),
                 includeEnergyInCost = includeEnergy,
-                hourlyMachineRate = machineRate.toDoubleOrZero()
+                hourlyMachineRate = machineRate.toDoubleOrZero(),
+                consumablesPerPrint = consumables.toDoubleOrZero()
             )
         )
     }
@@ -99,14 +101,14 @@ fun SettingsScreen(
                 Spacer(Modifier.height(10.dp))
                 TwoColumns(
                     left = { FormTextField("Imprimante", printer, { printer = it }) },
-                    right = { FormTextField("Matière", material, { material = it }) }
+                    right = { FormTextField("Résine", resinType, { resinType = it }) }
                 )
                 Spacer(Modifier.height(10.dp))
                 TwoColumns(
                     left = {
                         FormTextField(
-                            "Prix bobine", filamentPrice, { filamentPrice = it.filterDecimal() },
-                            keyboardType = KeyboardType.Decimal, suffix = "/kg"
+                            "Prix résine", resinPrice, { resinPrice = it.filterDecimal() },
+                            keyboardType = KeyboardType.Decimal, suffix = "/L"
                         )
                     },
                     right = { FormTextField("Devise", currency, { currency = it.take(3) }) }
@@ -114,7 +116,7 @@ fun SettingsScreen(
             }
 
             AppCard {
-                SectionHeader("Électricité", subtitle = "Intégrée au coût de chaque impression")
+                SectionHeader("Électricité et consommables", subtitle = "Intégrés au coût de chaque plateau")
                 Spacer(Modifier.height(10.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(modifier = Modifier.weight(1f)) {
@@ -147,8 +149,14 @@ fun SettingsScreen(
                 Spacer(Modifier.height(10.dp))
                 FormTextField(
                     "Coût machine horaire", machineRate, { machineRate = it.filterDecimal() },
-                    placeholder = "Amortissement, usure… (0 pour ignorer)",
+                    placeholder = "Amortissement, écran LCD… (0 pour ignorer)",
                     keyboardType = KeyboardType.Decimal, suffix = "$currency/h"
+                )
+                Spacer(Modifier.height(10.dp))
+                FormTextField(
+                    "Lavage et durcissement", consumables, { consumables = it.filterDecimal() },
+                    placeholder = "Alcool, gants, papier… par plateau (0 pour ignorer)",
+                    keyboardType = KeyboardType.Decimal, suffix = "$currency"
                 )
             }
 

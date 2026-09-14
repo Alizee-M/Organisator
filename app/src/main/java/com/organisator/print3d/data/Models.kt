@@ -61,13 +61,16 @@ data class PrintJob(
     val projectId: Long? = null,
     val fileName: String = "",
     val printer: String = "",
-    val material: String = "PLA",
-    val filamentColor: String = "",
+    /** Type de résine employée (standard, ABS-like, water-washable…). */
+    val resinType: String = "Résine standard",
+    val resinColor: String = "",
     val status: JobStatus = JobStatus.A_FAIRE,
     /** Échelle d'impression appliquée au modèle, en pourcentage. */
     val scalePercent: Int = 100,
     /** Nombre d'exemplaires posés sur le plateau. */
     val quantity: Int = 1,
+    /** Hauteur de couche, en microns : la granularité usuelle en résine. */
+    val layerHeightMicrons: Int = 50,
     val estimatedMinutes: Int = 0,
     val actualMinutes: Int = 0,
     val startedAt: Long? = null,
@@ -75,9 +78,11 @@ data class PrintJob(
     val scheduledAt: Long? = null,
     val reminderAt: Long? = null,
     val reminderEnabled: Boolean = false,
-    val filamentGrams: Double = 0.0,
-    val filamentPricePerKg: Double = 0.0,
-    /** Coûts annexes : supports, colle, ponçage, peinture… */
+    /** Volume de résine consommé, en millilitres. */
+    val resinMl: Double = 0.0,
+    /** Prix de la résine au litre, conditionnement habituel des bouteilles. */
+    val resinPricePerLitre: Double = 0.0,
+    /** Coûts annexes : supports, ponçage, apprêt, peinture… */
     val extraCost: Double = 0.0,
     /** null tant que le plateau n'a pas été évalué. */
     val plateFullyOk: Boolean? = null,

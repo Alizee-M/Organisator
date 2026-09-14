@@ -107,7 +107,7 @@ fun JobRow(
         ) {
             MetaText(formatMinutes(job.effectiveMinutes(now)))
             MetaText(formatMoney(job.totalCost(settings, now), settings.currency))
-            if (job.material.isNotBlank()) MetaText(job.material)
+            if (job.resinType.isNotBlank()) MetaText(job.resinType)
             if (job.scalePercent != 100) MetaText("${job.scalePercent} %")
         }
 

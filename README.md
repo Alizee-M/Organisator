@@ -1,14 +1,15 @@
 # Organisator — suivi d'impressions 3D
 
-Application Android qui remplace le fichier Excel de suivi d'atelier : temps,
-coûts, fichiers imprimés, mémos, résultat des plateaux, statistiques et rappels.
+Application Android de suivi d'impression 3D **résine** (SLA / MSLA / DLP) qui
+remplace le fichier Excel d'atelier : temps, coûts, fichiers imprimés, mémos,
+résultat des plateaux, statistiques et rappels.
 
 ## Ce que fait l'application
 
 **Plateaux** — l'unité de suivi. Chaque plateau porte son nom, le fichier
-imprimé, l'imprimante, la matière et la couleur, l'échelle, le nombre
-d'exemplaires, le temps estimé et le temps réel, le filament consommé et ses
-coûts annexes, plus un mémo libre.
+imprimé, l'imprimante, le type de résine et sa couleur, la hauteur de couche,
+l'échelle, le nombre d'exemplaires, le temps estimé et le temps réel, le volume
+de résine consommé et ses coûts annexes, plus un mémo libre.
 
 **Statuts** — `À faire`, `À imprimer`, `En cours`, `Terminé`, `À refaire`,
 `Annulé`. Un plateau `En cours` affiche sa progression et le temps restant, mis
@@ -19,16 +20,18 @@ s'il reste des pièces à refaire. Chaque pièce du plateau peut être listée e
 suivie individuellement (`À faire` → `Imprimée` → `À refaire`).
 
 **Projets** — regroupent plusieurs plateaux, avec avancement, temps et coût
-cumulés, couleur de repérage et échéance.
+cumulés, couleur de repérage et échéance. La liste des plateaux se filtre par
+projet et se regroupe par projet, avec le total de chaque section.
 
 **Statistiques** — échelle de temps au choix (7 j, 30 j, 90 j, 1 an, tout) :
-temps d'impression, coût, nombre de plateaux, filament consommé, taux de
+temps d'impression, coût, nombre de plateaux, résine consommée, taux de
 réussite, histogramme par jour / semaine / mois, répartition par statut,
-consommation par matière, classement des projets.
+consommation par type de résine, classement des projets.
 
-**Coûts** — filament (grammes × prix/kg), électricité (puissance × durée × prix
-du kWh), coût machine horaire optionnel, et coûts annexes. Le détail est affiché
-poste par poste sur chaque plateau.
+**Coûts** — résine (millilitres × prix au litre), électricité (puissance × durée
+× prix du kWh), coût machine horaire optionnel, consommables de lavage et de
+durcissement par plateau, et coûts annexes. Le détail est affiché poste par
+poste sur chaque plateau.
 
 **Rappels** — une notification à l'heure choisie pour lancer un plateau. Les
 rappels sont réarmés automatiquement après un redémarrage du téléphone.
@@ -74,7 +77,8 @@ attaché.
 ## Architecture
 
 - **Kotlin + Jetpack Compose**, Material 3, thème clair/sombre sobre.
-- **Room** pour la base locale (`projects`, `print_jobs`, `print_parts`).
+- **Room** pour la base locale (`projects`, `print_jobs`, `print_parts`), avec
+  migration versionnée.
 - **AlarmManager** pour les rappels, réarmés au boot.
 - Graphiques dessinés au `Canvas`, sans dépendance externe.
 - Tout reste sur l'appareil : aucun compte, aucun réseau.

@@ -39,7 +39,7 @@ import com.organisator.print3d.ui.components.ProgressBar
 import com.organisator.print3d.ui.components.SectionHeader
 import com.organisator.print3d.ui.components.StatTile
 import com.organisator.print3d.ui.theme.StatusPalette
-import com.organisator.print3d.util.formatGrams
+import com.organisator.print3d.util.formatMillilitres
 import com.organisator.print3d.util.formatMinutes
 import com.organisator.print3d.util.formatMoney
 import com.organisator.print3d.util.parseColor
@@ -125,8 +125,8 @@ fun StatsScreen(
                     modifier = Modifier.weight(1f)
                 )
                 StatTile(
-                    label = "Filament",
-                    value = formatGrams(stats.totalGrams),
+                    label = "Résine",
+                    value = formatMillilitres(stats.totalMl),
                     caption = "Consommé sur la période",
                     modifier = Modifier.weight(1f)
                 )
@@ -200,30 +200,30 @@ fun StatsScreen(
             }
         }
 
-        if (stats.materials.isNotEmpty()) {
+        if (stats.resins.isNotEmpty()) {
             item {
                 AppCard {
-                    SectionHeader("Matières", subtitle = "Filament consommé")
+                    SectionHeader("Résines", subtitle = "Volume consommé")
                     Spacer(Modifier.height(10.dp))
-                    val maxGrams = stats.materials.maxOf { it.grams }.coerceAtLeast(0.001)
+                    val maxMl = stats.resins.maxOf { it.ml }.coerceAtLeast(0.001)
                     val palette = StatusPalette.chartSeries(dark)
-                    stats.materials.forEachIndexed { index, mat ->
+                    stats.resins.forEachIndexed { index, resin ->
                         Column(modifier = Modifier.fillMaxWidth()) {
                             Row(modifier = Modifier.fillMaxWidth()) {
                                 Text(
-                                    mat.material,
+                                    resin.resinType,
                                     style = MaterialTheme.typography.bodySmall,
                                     modifier = Modifier.weight(1f)
                                 )
                                 Text(
-                                    "${formatGrams(mat.grams)} · ${mat.jobs}",
+                                    "${formatMillilitres(resin.ml)} · ${resin.jobs}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                             Spacer(Modifier.height(4.dp))
                             ProgressBar(
-                                progress = (mat.grams / maxGrams).toFloat(),
+                                progress = (resin.ml / maxMl).toFloat(),
                                 color = palette[index % palette.size],
                                 height = 5.dp
                             )

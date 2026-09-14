@@ -49,7 +49,11 @@ import com.organisator.print3d.ui.components.SectionHeader
 import com.organisator.print3d.ui.components.TwoColumns
 import com.organisator.print3d.ui.theme.StatusPalette
 
-private val MATERIALS = listOf("PLA", "PLA+", "PETG", "ABS", "ASA", "TPU", "PA-CF", "Résine")
+private val RESIN_TYPES = listOf(
+    "Résine standard", "ABS-like", "Water-washable", "Tough",
+    "Flexible", "Transparente", "Castable", "Dentaire", "Haute température"
+)
+private val LAYER_HEIGHTS = listOf("20", "25", "30", "35", "40", "50", "60", "80", "100")
 private const val NO_PROJECT = "Aucun projet"
 
 @Composable
@@ -69,8 +73,8 @@ fun JobEditScreen(
     var projectId by remember(base) { mutableStateOf(base?.projectId ?: preselectedProjectId) }
     var fileName by remember(base) { mutableStateOf(base?.fileName ?: "") }
     var printer by remember(base) { mutableStateOf(base?.printer ?: settings.defaultPrinter) }
-    var material by remember(base) { mutableStateOf(base?.material ?: settings.defaultMaterial) }
-    var filamentColor by remember(base) { mutableStateOf(base?.filamentColor ?: "") }
+    var resinType by remember(base) { mutableStateOf(base?.resinType ?: settings.defaultResinType) }
+    var resinColor by remember(base) { mutableStateOf(base?.resinColor ?: "") }
     var status by remember(base) { mutableStateOf(base?.status ?: JobStatus.A_FAIRE) }
     var scale by remember(base) { mutableStateOf((base?.scalePercent ?: 100).toString()) }
     var quantity by remember(base) { mutableStateOf((base?.quantity ?: 1).toString()) }
@@ -78,10 +82,11 @@ fun JobEditScreen(
     var estMinutes by remember(base) { mutableStateOf(((base?.estimatedMinutes ?: 0) % 60).toString()) }
     var realHours by remember(base) { mutableStateOf(((base?.actualMinutes ?: 0) / 60).toString()) }
     var realMinutes by remember(base) { mutableStateOf(((base?.actualMinutes ?: 0) % 60).toString()) }
-    var grams by remember(base) { mutableStateOf(base?.filamentGrams?.takeIf { it > 0 }?.trimNumber() ?: "") }
-    var pricePerKg by remember(base) {
+    var resinMl by remember(base) { mutableStateOf(base?.resinMl?.takeIf { it > 0 }?.trimNumber() ?: "") }
+    var layerHeight by remember(base) { mutableStateOf((base?.layerHeightMicrons ?: 50).toString()) }
+    var pricePerLitre by remember(base) {
         mutableStateOf(
-            (base?.filamentPricePerKg?.takeIf { it > 0 } ?: settings.defaultFilamentPricePerKg).trimNumber()
+            (base?.resinPricePerLitre?.takeIf { it > 0 } ?: settings.defaultResinPricePerLitre).trimNumber()
         )
     }
     var extraCost by remember(base) { mutableStateOf(base?.extraCost?.takeIf { it > 0 }?.trimNumber() ?: "") }
@@ -164,15 +169,22 @@ fun JobEditScreen(
                 TwoColumns(
                     left = {
                         DropdownField(
-                            label = "Matière",
-                            value = material,
-                            options = MATERIALS,
-                            onSelect = { material = it }
+                            label = "Résine",
+                            value = resinType,
+                            options = RESIN_TYPES,
+                            onSelect = { resinType = it }
                         )
                     },
                     right = {
-                        FormTextField("Couleur", filamentColor, { filamentColor = it }, placeholder = "Noir mat")
+                        FormTextField("Couleur", resinColor, { resinColor = it }, placeholder = "Gris mat")
                     }
+                )
+                Spacer(Modifier.height(10.dp))
+                DropdownField(
+                    label = "Hauteur de couche (µm)",
+                    value = layerHeight,
+                    options = LAYER_HEIGHTS,
+                    onSelect = { layerHeight = it.filterDigits() }
                 )
                 Spacer(Modifier.height(10.dp))
                 TwoColumns(
@@ -220,22 +232,22 @@ fun JobEditScreen(
             }
 
             AppCard {
-                SectionHeader("Coûts", subtitle = "L'énergie est calculée depuis les réglages")
+                SectionHeader("Coûts", subtitle = "Énergie et consommables viennent des réglages")
                 Spacer(Modifier.height(10.dp))
                 TwoColumns(
                     left = {
-                        FormTextField("Filament", grams, { grams = it.filterDecimal() },
-                            keyboardType = KeyboardType.Decimal, suffix = "g")
+                        FormTextField("Résine", resinMl, { resinMl = it.filterDecimal() },
+                            keyboardType = KeyboardType.Decimal, suffix = "mL")
                     },
                     right = {
-                        FormTextField("Prix bobine", pricePerKg, { pricePerKg = it.filterDecimal() },
-                            keyboardType = KeyboardType.Decimal, suffix = "${settings.currency}/kg")
+                        FormTextField("Prix résine", pricePerLitre, { pricePerLitre = it.filterDecimal() },
+                            keyboardType = KeyboardType.Decimal, suffix = "${settings.currency}/L")
                     }
                 )
                 Spacer(Modifier.height(10.dp))
                 FormTextField(
                     "Coûts annexes", extraCost, { extraCost = it.filterDecimal() },
-                    placeholder = "Colle, peinture, ponçage…",
+                    placeholder = "Apprêt, peinture, ponçage…",
                     keyboardType = KeyboardType.Decimal, suffix = settings.currency
                 )
             }
@@ -286,7 +298,7 @@ fun JobEditScreen(
                     label = "Notes",
                     value = notes,
                     onValueChange = { notes = it },
-                    placeholder = "Réglages, adhérence, support, remarques…",
+                    placeholder = "Exposition, orientation, supports, remarques…",
                     singleLine = false,
                     minLines = 3
                 )
@@ -301,15 +313,16 @@ fun JobEditScreen(
                         projectId = projectId,
                         fileName = fileName.trim(),
                         printer = printer.trim(),
-                        material = material.trim(),
-                        filamentColor = filamentColor.trim(),
+                        resinType = resinType.trim(),
+                        resinColor = resinColor.trim(),
                         status = status,
                         scalePercent = scale.toIntOrZero().let { if (it <= 0) 100 else it }.coerceAtMost(1000),
                         quantity = quantity.toIntOrZero().coerceAtLeast(1),
                         estimatedMinutes = est,
                         actualMinutes = real,
-                        filamentGrams = grams.toDoubleOrZero(),
-                        filamentPricePerKg = pricePerKg.toDoubleOrZero(),
+                        resinMl = resinMl.toDoubleOrZero(),
+                        resinPricePerLitre = pricePerLitre.toDoubleOrZero(),
+                        layerHeightMicrons = layerHeight.toIntOrZero().let { if (it <= 0) 50 else it },
                         extraCost = extraCost.toDoubleOrZero(),
                         scheduledAt = scheduledAt,
                         reminderEnabled = reminderEnabled && reminderAt != null,

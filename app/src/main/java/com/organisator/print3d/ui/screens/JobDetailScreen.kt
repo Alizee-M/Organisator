@@ -63,7 +63,7 @@ import com.organisator.print3d.ui.components.StatusChip
 import com.organisator.print3d.ui.theme.StatusPalette
 import com.organisator.print3d.ui.theme.statusColor
 import com.organisator.print3d.util.formatDateTime
-import com.organisator.print3d.util.formatGrams
+import com.organisator.print3d.util.formatMillilitres
 import com.organisator.print3d.util.formatMinutes
 import com.organisator.print3d.util.formatMoney
 import com.organisator.print3d.util.formatRelative
@@ -225,12 +225,15 @@ fun JobDetailScreen(
             AppCard {
                 SectionHeader("Coût", subtitle = "Détail par poste")
                 Spacer(Modifier.height(6.dp))
-                DetailRow("Filament (${formatGrams(job.filamentGrams)})", formatMoney(cost.filament, settings.currency))
+                DetailRow("Résine (${formatMillilitres(job.resinMl)})", formatMoney(cost.resin, settings.currency))
                 if (settings.includeEnergyInCost) {
                     DetailRow("Électricité", formatMoney(cost.energy, settings.currency))
                 }
                 if (settings.hourlyMachineRate > 0) {
                     DetailRow("Machine", formatMoney(cost.machine, settings.currency))
+                }
+                if (settings.consumablesPerPrint > 0) {
+                    DetailRow("Lavage et durcissement", formatMoney(cost.consumables, settings.currency))
                 }
                 if (job.extraCost > 0) {
                     DetailRow("Annexes", formatMoney(cost.extra, settings.currency))
@@ -253,13 +256,14 @@ fun JobDetailScreen(
                 Spacer(Modifier.height(6.dp))
                 if (job.fileName.isNotBlank()) DetailRow("Fichier", job.fileName)
                 if (job.printer.isNotBlank()) DetailRow("Imprimante", job.printer)
-                DetailRow("Matière", listOfNotNull(
-                    job.material.takeIf { it.isNotBlank() },
-                    job.filamentColor.takeIf { it.isNotBlank() }
+                DetailRow("Résine", listOfNotNull(
+                    job.resinType.takeIf { it.isNotBlank() },
+                    job.resinColor.takeIf { it.isNotBlank() }
                 ).joinToString(" · ").ifBlank { "—" })
                 DetailRow("Échelle", "${job.scalePercent} %")
                 DetailRow("Exemplaires", job.quantity.toString())
-                DetailRow("Filament", formatGrams(job.filamentGrams))
+                DetailRow("Hauteur de couche", "${job.layerHeightMicrons} µm")
+                DetailRow("Volume de résine", formatMillilitres(job.resinMl))
             }
 
             if (job.scheduledAt != null || (job.reminderEnabled && job.reminderAt != null)) {

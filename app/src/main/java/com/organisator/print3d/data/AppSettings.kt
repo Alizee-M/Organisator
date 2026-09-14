@@ -8,13 +8,17 @@ import kotlinx.coroutines.flow.callbackFlow
 /** Réglages par défaut réutilisés pour chiffrer chaque plateau. */
 data class Settings(
     val currency: String = "€",
-    val defaultFilamentPricePerKg: Double = 22.0,
+    /** Les bouteilles de résine se vendent au litre ou au demi-litre. */
+    val defaultResinPricePerLitre: Double = 45.0,
     val defaultPrinter: String = "",
-    val defaultMaterial: String = "PLA",
-    val printerWatts: Double = 120.0,
+    val defaultResinType: String = "Résine standard",
+    /** Une imprimante résine consomme nettement moins qu'une machine à filament. */
+    val printerWatts: Double = 50.0,
     val electricityPricePerKwh: Double = 0.2516,
     val includeEnergyInCost: Boolean = true,
-    val hourlyMachineRate: Double = 0.0
+    val hourlyMachineRate: Double = 0.0,
+    /** Alcool de lavage, gants, papier absorbant : un coût fixe à chaque plateau. */
+    val consumablesPerPrint: Double = 0.0
 )
 
 class SettingsStore(context: Context) {
@@ -24,25 +28,27 @@ class SettingsStore(context: Context) {
 
     fun read(): Settings = Settings(
         currency = prefs.getString(KEY_CURRENCY, "€") ?: "€",
-        defaultFilamentPricePerKg = prefs.getFloat(KEY_FILAMENT_PRICE, 22.0f).toDouble(),
+        defaultResinPricePerLitre = prefs.getFloat(KEY_RESIN_PRICE, 45.0f).toDouble(),
         defaultPrinter = prefs.getString(KEY_PRINTER, "") ?: "",
-        defaultMaterial = prefs.getString(KEY_MATERIAL, "PLA") ?: "PLA",
-        printerWatts = prefs.getFloat(KEY_WATTS, 120.0f).toDouble(),
+        defaultResinType = prefs.getString(KEY_RESIN_TYPE, "Résine standard") ?: "Résine standard",
+        printerWatts = prefs.getFloat(KEY_WATTS, 50.0f).toDouble(),
         electricityPricePerKwh = prefs.getFloat(KEY_KWH, 0.2516f).toDouble(),
         includeEnergyInCost = prefs.getBoolean(KEY_ENERGY, true),
-        hourlyMachineRate = prefs.getFloat(KEY_MACHINE_RATE, 0.0f).toDouble()
+        hourlyMachineRate = prefs.getFloat(KEY_MACHINE_RATE, 0.0f).toDouble(),
+        consumablesPerPrint = prefs.getFloat(KEY_CONSUMABLES, 0.0f).toDouble()
     )
 
     fun write(settings: Settings) {
         prefs.edit()
             .putString(KEY_CURRENCY, settings.currency)
-            .putFloat(KEY_FILAMENT_PRICE, settings.defaultFilamentPricePerKg.toFloat())
+            .putFloat(KEY_RESIN_PRICE, settings.defaultResinPricePerLitre.toFloat())
             .putString(KEY_PRINTER, settings.defaultPrinter)
-            .putString(KEY_MATERIAL, settings.defaultMaterial)
+            .putString(KEY_RESIN_TYPE, settings.defaultResinType)
             .putFloat(KEY_WATTS, settings.printerWatts.toFloat())
             .putFloat(KEY_KWH, settings.electricityPricePerKwh.toFloat())
             .putBoolean(KEY_ENERGY, settings.includeEnergyInCost)
             .putFloat(KEY_MACHINE_RATE, settings.hourlyMachineRate.toFloat())
+            .putFloat(KEY_CONSUMABLES, settings.consumablesPerPrint.toFloat())
             .apply()
     }
 
@@ -56,12 +62,13 @@ class SettingsStore(context: Context) {
 
     private companion object {
         const val KEY_CURRENCY = "currency"
-        const val KEY_FILAMENT_PRICE = "filament_price"
+        const val KEY_RESIN_PRICE = "resin_price_per_litre"
         const val KEY_PRINTER = "printer"
-        const val KEY_MATERIAL = "material"
+        const val KEY_RESIN_TYPE = "resin_type"
         const val KEY_WATTS = "watts"
         const val KEY_KWH = "kwh"
         const val KEY_ENERGY = "energy"
         const val KEY_MACHINE_RATE = "machine_rate"
+        const val KEY_CONSUMABLES = "consumables"
     }
 }

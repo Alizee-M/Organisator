@@ -5,24 +5,33 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Buse de l'imprimante -->
+    <!-- Bras et plateau d'impression -->
     <path
-        android:fillColor="#FF9E7BFF"
-        android:pathData="M49,22 h10 v7 h-10 z" />
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M51,20 h6 v10 h-6 z" />
     <path
-        android:fillColor="#FF9E7BFF"
-        android:pathData="M47,29 h14 l-4,7 h-6 z" />
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M33,30 h42 v5 h-42 z" />
 
-    <!-- Couches imprimées, empilées en isométrie -->
+    <!-- Pièce suspendue sous le plateau, couche par couche -->
     <path
         android:fillColor="#FFFFFFFF"
-        android:fillAlpha="0.45"
-        android:pathData="M54,44 L78,55 L54,66 L30,55 Z" />
+        android:pathData="M42,35 h24 v7 h-24 z" />
     <path
         android:fillColor="#FFFFFFFF"
-        android:fillAlpha="0.70"
-        android:pathData="M54,53 L78,64 L54,75 L30,64 Z" />
+        android:fillAlpha="0.8"
+        android:pathData="M45,44 h18 v7 h-18 z" />
     <path
         android:fillColor="#FFFFFFFF"
-        android:pathData="M54,62 L78,73 L54,84 L30,73 Z" />
+        android:fillAlpha="0.6"
+        android:pathData="M48,53 h12 v7 h-12 z" />
+
+    <!-- Cuve de résine -->
+    <path
+        android:fillColor="#FF9E7BFF"
+        android:pathData="M26,66 h56 v16 a4,4 0 0 1 -4,4 h-48 a4,4 0 0 1 -4,-4 z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillAlpha="0.35"
+        android:pathData="M26,66 h56 v4 h-56 z" />
 </vector>

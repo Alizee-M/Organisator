@@ -124,7 +124,7 @@ fun DashboardScreen(
                 StatTile(
                     label = "Coût 30 j",
                     value = formatMoney(monthCost, state.settings.currency),
-                    caption = "Filament + énergie",
+                    caption = "Résine + énergie",
                     modifier = Modifier.weight(1f)
                 )
             }
