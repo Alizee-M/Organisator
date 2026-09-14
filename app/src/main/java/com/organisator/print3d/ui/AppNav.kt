@@ -81,8 +81,6 @@ fun OrganisatorNavHost(
     val currentRoute = backStackEntry?.destination?.route
     val tab = Tab.entries.firstOrNull { it.route == currentRoute }
 
-    LaunchedEffect(Unit) { viewModel.cleanupPhotos() }
-
     LaunchedEffect(deepLinkJobId) {
         val id = deepLinkJobId ?: return@LaunchedEffect
         navController.navigate("job/$id")

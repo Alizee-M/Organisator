@@ -80,6 +80,7 @@ fun ProjectEditScreen(
     var deadline by remember(existing) { mutableStateOf(existing?.deadline) }
     var photoPath by remember(existing) { mutableStateOf(existing?.photoPath) }
     var importing by remember { mutableStateOf(false) }
+    var importFailed by remember { mutableStateOf(false) }
     var showDelete by remember { mutableStateOf(false) }
 
     val photoPicker = rememberLauncherForActivityResult(
@@ -87,9 +88,12 @@ fun ProjectEditScreen(
     ) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         importing = true
+        importFailed = false
         onPickPhoto(uri) { imported ->
             importing = false
-            if (imported != null) {
+            if (imported == null) {
+                importFailed = true
+            } else {
                 // La photo remplacée n'est plus référencée nulle part.
                 if (photoPath != existing?.photoPath) onDiscardPhoto(photoPath)
                 photoPath = imported
@@ -185,6 +189,14 @@ fun ProjectEditScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
+                }
+                if (importFailed) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = "Cette image n'a pas pu être lue. Essayez-en une autre.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
                 if (photoPath != null) {
                     Spacer(Modifier.height(4.dp))

@@ -55,17 +55,19 @@ class PhotoStore(context: Context) {
     }
 
     private fun decodeScaled(uri: Uri): Bitmap? {
+        // Première passe : on ne lit que les dimensions. decodeStream rend toujours
+        // null dans ce mode, c'est donc l'ouverture du flux, et elle seule, qui dit
+        // si l'image est lisible.
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-        appContext.contentResolver.openInputStream(uri)?.use {
-            BitmapFactory.decodeStream(it, null, bounds)
-        } ?: return null
+        val boundsStream = appContext.contentResolver.openInputStream(uri) ?: return null
+        boundsStream.use { BitmapFactory.decodeStream(it, null, bounds) }
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
 
         val options = BitmapFactory.Options().apply {
             inSampleSize = sampleSizeFor(bounds.outWidth, bounds.outHeight)
         }
-        return appContext.contentResolver.openInputStream(uri)?.use {
-            BitmapFactory.decodeStream(it, null, options)
-        }
+        val stream = appContext.contentResolver.openInputStream(uri) ?: return null
+        return stream.use { BitmapFactory.decodeStream(it, null, options) }
     }
 
     /** Puissance de deux la plus grande qui garde l'image au-dessus de [MAX_SIDE]. */

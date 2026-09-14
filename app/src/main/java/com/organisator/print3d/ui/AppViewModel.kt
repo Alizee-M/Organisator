@@ -36,6 +36,14 @@ data class AppState(
 
 class AppViewModel(private val repository: PrintRepository) : ViewModel() {
 
+    init {
+        // Une seule fois par instance : la rotation de l'écran ne doit pas relancer
+        // le ménage, qui effacerait une photo importée mais pas encore enregistrée.
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) { repository.cleanupOrphanPhotos() }
+        }
+    }
+
     /** Horloge partagée : fait vivre les compteurs des impressions en cours. */
     val now: StateFlow<Long> = flow {
         while (true) {
@@ -125,11 +133,6 @@ class AppViewModel(private val repository: PrintRepository) : ViewModel() {
 
     fun discardProjectPhoto(path: String?) = viewModelScope.launch {
         withContext(Dispatchers.IO) { repository.deletePhoto(path) }
-    }
-
-    /** Au démarrage, on efface les photos qu'aucun projet ne référence. */
-    fun cleanupPhotos() = viewModelScope.launch {
-        withContext(Dispatchers.IO) { repository.cleanupOrphanPhotos() }
     }
 
     // --- Pièces -------------------------------------------------------------
