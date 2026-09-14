@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+        android:shortcutId="nouveau_plateau"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_plateau"
+        android:shortcutShortLabel="@string/shortcut_new_job_short"
+        android:shortcutLongLabel="@string/shortcut_new_job_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="organisator://plateau/nouveau"
+            android:targetClass="com.organisator.print3d.MainActivity"
+            android:targetPackage="com.organisator.print3d" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="nouveau_projet"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_projet"
+        android:shortcutShortLabel="@string/shortcut_new_project_short"
+        android:shortcutLongLabel="@string/shortcut_new_project_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="organisator://projet/nouveau"
+            android:targetClass="com.organisator.print3d.MainActivity"
+            android:targetPackage="com.organisator.print3d" />
+    </shortcut>
+
+</shortcuts>

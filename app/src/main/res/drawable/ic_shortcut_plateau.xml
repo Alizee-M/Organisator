@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path android:fillColor="#FF14161C" android:pathData="M0,0h48v48h-48z" />
+    <!-- Plateau suspendu au-dessus de la cuve -->
+    <path android:fillColor="#FFFFFFFF" android:pathData="M22.5,11h3v5h-3z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M14,16h20v3h-20z" />
+    <path android:fillColor="#FFFFFFFF" android:fillAlpha="0.85" android:pathData="M18.5,19h11v4.5h-11z" />
+    <path android:fillColor="#FFFFFFFF" android:fillAlpha="0.6" android:pathData="M20.5,23.5h7v4.5h-7z" />
+    <path android:fillColor="#FF9E7BFF" android:pathData="M11,31h26v4a2,2 0 0 1 -2,2h-22a2,2 0 0 1 -2,-2z" />
+</vector>

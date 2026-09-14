@@ -68,8 +68,8 @@ fun OrganisatorNavHost(
     exactAlarmsAllowed: () -> Boolean,
     onRequestNotifications: () -> Unit,
     onOpenExactAlarmSettings: () -> Unit,
-    deepLinkJobId: Long?,
-    onDeepLinkHandled: () -> Unit,
+    pendingRoute: String?,
+    onRouteHandled: () -> Unit,
     navController: NavHostController = rememberNavController()
 ) {
     val state by viewModel.state.collectAsState()
@@ -81,10 +81,10 @@ fun OrganisatorNavHost(
     val currentRoute = backStackEntry?.destination?.route
     val tab = Tab.entries.firstOrNull { it.route == currentRoute }
 
-    LaunchedEffect(deepLinkJobId) {
-        val id = deepLinkJobId ?: return@LaunchedEffect
-        navController.navigate("job/$id")
-        onDeepLinkHandled()
+    LaunchedEffect(pendingRoute) {
+        val route = pendingRoute ?: return@LaunchedEffect
+        navController.navigate(route)
+        onRouteHandled()
     }
 
     Scaffold(

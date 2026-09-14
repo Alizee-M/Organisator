@@ -38,6 +38,19 @@ poste sur chaque plateau.
 **Rappels** — une notification à l'heure choisie pour lancer un plateau. Les
 rappels sont réarmés automatiquement après un redémarrage du téléphone.
 
+**Raccourcis et liens** — un appui long sur l'icône propose « Nouveau plateau »
+et « Nouveau projet », qu'on peut déposer sur l'écran d'accueil. Les mêmes
+écrans s'ouvrent par lien profond :
+
+```
+organisator://plateau/nouveau
+organisator://projet/nouveau
+```
+
+De quoi déclencher la saisie depuis une routine vocale de l'assistant, un
+bouton d'écran d'accueil ou une application d'automatisation, sans que
+l'application ait besoin d'écouter le micro.
+
 ## Installer
 
 Téléchargez l'APK depuis la page

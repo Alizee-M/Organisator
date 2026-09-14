@@ -24,7 +24,8 @@ import com.organisator.print3d.ui.theme.OrganisatorTheme
 
 class MainActivity : ComponentActivity() {
 
-    private var deepLinkJobId by mutableStateOf<Long?>(null)
+    /** Écran à ouvrir au lancement : rappel touché, raccourci, ou lien organisator://. */
+    private var pendingRoute by mutableStateOf<String?>(null)
     private var notificationsGranted by mutableStateOf(true)
 
     private val notificationPermissionLauncher =
@@ -37,7 +38,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         Notifications.createChannels(this)
         notificationsGranted = hasNotificationPermission()
-        deepLinkJobId = intent.jobIdExtra()
+        pendingRoute = intent.toRoute()
 
         if (!notificationsGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -53,8 +54,8 @@ class MainActivity : ComponentActivity() {
                     exactAlarmsAllowed = { ReminderScheduler(this).canScheduleExactAlarms() },
                     onRequestNotifications = { requestNotifications() },
                     onOpenExactAlarmSettings = { openExactAlarmSettings() },
-                    deepLinkJobId = deepLinkJobId,
-                    onDeepLinkHandled = { deepLinkJobId = null }
+                    pendingRoute = pendingRoute,
+                    onRouteHandled = { pendingRoute = null }
                 )
             }
         }
@@ -63,7 +64,7 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        intent.jobIdExtra()?.let { deepLinkJobId = it }
+        intent.toRoute()?.let { pendingRoute = it }
     }
 
     override fun onResume() {
@@ -71,8 +72,31 @@ class MainActivity : ComponentActivity() {
         notificationsGranted = hasNotificationPermission()
     }
 
-    private fun Intent.jobIdExtra(): Long? =
-        getLongExtra(Notifications.EXTRA_JOB_ID, -1L).takeIf { it >= 0 }
+    /**
+     * Traduit l'intention de lancement en route de navigation. Trois entrées
+     * possibles : la notification de rappel, un raccourci du lanceur, ou un lien
+     * `organisator://` déclenché par une routine vocale ou une automatisation.
+     */
+    private fun Intent.toRoute(): String? {
+        getLongExtra(Notifications.EXTRA_JOB_ID, -1L)
+            .takeIf { it >= 0 }
+            ?.let { return "job/$it" }
+
+        val uri = data ?: return null
+        if (!uri.scheme.equals(DEEP_LINK_SCHEME, ignoreCase = true)) return null
+        val path = (listOfNotNull(uri.host) + uri.pathSegments).joinToString("/")
+        return when (path) {
+            "plateau/nouveau" -> ROUTE_NEW_JOB
+            "projet/nouveau" -> ROUTE_NEW_PROJECT
+            else -> null
+        }
+    }
+
+    private companion object {
+        const val DEEP_LINK_SCHEME = "organisator"
+        const val ROUTE_NEW_JOB = "jobEdit/0?projectId=0"
+        const val ROUTE_NEW_PROJECT = "projectEdit/0"
+    }
 
     private fun hasNotificationPermission(): Boolean =
         Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||

@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Organisator</string>
+    <string name="shortcut_new_job_short">Plateau</string>
+    <string name="shortcut_new_job_long">Nouveau plateau</string>
+    <string name="shortcut_new_project_short">Projet</string>
+    <string name="shortcut_new_project_long">Nouveau projet</string>
 </resources>
