@@ -1,9 +1,18 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.ExperimentalFoundationApi::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 
 package com.organisator.print3d.ui.screens
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -38,7 +47,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.organisator.print3d.data.JobStatus
 import com.organisator.print3d.data.PartStatus
@@ -53,8 +61,9 @@ import com.organisator.print3d.data.progress
 import com.organisator.print3d.data.remainingMinutes
 import com.organisator.print3d.ui.components.AppCard
 import com.organisator.print3d.ui.components.Chip
-import com.organisator.print3d.ui.components.DetailRow
 import com.organisator.print3d.ui.components.Divider
+import com.organisator.print3d.ui.components.DropdownField
+import com.organisator.print3d.ui.components.DetailRow
 import com.organisator.print3d.ui.components.FormTextField
 import com.organisator.print3d.ui.components.ProgressBar
 import com.organisator.print3d.ui.components.SectionHeader
@@ -79,13 +88,15 @@ fun JobDetailScreen(
     onEdit: () -> Unit,
     onStatus: (JobStatus) -> Unit,
     onOutcome: (Boolean) -> Unit,
-    onAddPart: (String, Int) -> Unit,
+    projects: List<Project>,
+    onProjectChange: (Long?) -> Unit,
+    onAddParts: (String) -> Unit,
     onTogglePart: (PrintPart) -> Unit,
     onDeletePart: (PrintPart) -> Unit,
     onReprint: () -> Unit
 ) {
     val dark = isDarkTheme()
-    var showAddPart by remember { mutableStateOf(false) }
+    var newParts by remember(job.id) { mutableStateOf("") }
     val cost = job.costBreakdown(settings, now)
 
     Scaffold(
@@ -155,6 +166,26 @@ fun JobDetailScreen(
                 }
             }
 
+            AppCard {
+                SectionHeader(
+                    title = "Projet",
+                    subtitle = "Modifiable même pendant l'impression"
+                )
+                Spacer(Modifier.height(10.dp))
+                DropdownField(
+                    label = "Rattaché à",
+                    value = project?.name ?: NO_PROJECT,
+                    options = listOf(NO_PROJECT) + projects.map { it.name },
+                    allowCustom = false,
+                    onSelect = { selected ->
+                        onProjectChange(
+                            if (selected == NO_PROJECT) null
+                            else projects.firstOrNull { it.name == selected }?.id
+                        )
+                    }
+                )
+            }
+
             ActionBar(
                 job = job,
                 onStatus = onStatus,
@@ -163,23 +194,54 @@ fun JobDetailScreen(
             )
 
             AppCard {
+                val toRedo = parts.count { it.status == PartStatus.A_REFAIRE }
                 SectionHeader(
                     title = "Pièces du plateau",
-                    subtitle = if (parts.isEmpty()) "Ajoutez les pièces pour suivre ce qui est à refaire"
-                    else partsSummary(parts),
-                    actionLabel = "Ajouter",
-                    onAction = { showAddPart = true }
+                    subtitle = if (parts.isEmpty()) "Séparez les noms par des espaces"
+                    else "Touchez une pièce ratée pour la passer en rouge"
                 )
                 if (parts.isNotEmpty()) {
-                    Spacer(Modifier.height(8.dp))
-                    parts.forEachIndexed { index, part ->
-                        if (index > 0) Divider()
-                        PartRow(
-                            part = part,
-                            onToggle = { onTogglePart(part) },
-                            onDelete = { onDeletePart(part) }
-                        )
+                    Spacer(Modifier.height(12.dp))
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        parts.forEach { part ->
+                            PartChip(
+                                part = part,
+                                onClick = { onTogglePart(part) },
+                                onLongClick = { onDeletePart(part) }
+                            )
+                        }
                     }
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = if (toRedo == 0) "Appui long pour retirer une pièce."
+                        else "$toRedo pièce${if (toRedo > 1) "s" else ""} à refaire · appui long pour en retirer une.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (toRedo == 0) MaterialTheme.colorScheme.onSurfaceVariant
+                        else statusColor(JobStatus.A_REFAIRE)
+                    )
+                }
+                Spacer(Modifier.height(12.dp))
+                FormTextField(
+                    label = "Ajouter des pièces",
+                    value = newParts,
+                    onValueChange = { newParts = it },
+                    placeholder = "tête bras jambes"
+                )
+                Spacer(Modifier.height(4.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    androidx.compose.material3.TextButton(
+                        onClick = {
+                            onAddParts(newParts)
+                            newParts = ""
+                        },
+                        enabled = newParts.isNotBlank()
+                    ) { Text("Ajouter") }
                 }
             }
 
@@ -295,15 +357,6 @@ fun JobDetailScreen(
         }
     }
 
-    if (showAddPart) {
-        AddPartDialog(
-            onDismiss = { showAddPart = false },
-            onConfirm = { partName, qty ->
-                onAddPart(partName, qty)
-                showAddPart = false
-            }
-        )
-    }
 }
 
 @Composable
@@ -384,79 +437,35 @@ private fun OutcomeButton(
     }
 }
 
+/**
+ * Une pièce se présente comme un bouton : neutre tant que tout va bien, rouge
+ * dès qu'elle est marquée à refaire.
+ */
 @Composable
-private fun PartRow(
+private fun PartChip(
     part: PrintPart,
-    onToggle: () -> Unit,
-    onDelete: () -> Unit
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
 ) {
-    val dark = isDarkTheme()
-    val color = when (part.status) {
-        PartStatus.A_FAIRE -> StatusPalette.color(JobStatus.A_FAIRE, dark)
-        PartStatus.OK -> StatusPalette.color(JobStatus.TERMINE, dark)
-        PartStatus.A_REFAIRE -> StatusPalette.color(JobStatus.A_REFAIRE, dark)
-    }
-    Row(
+    val failed = part.status == PartStatus.A_REFAIRE
+    val accent = statusColor(JobStatus.A_REFAIRE)
+    val background = if (failed) accent.copy(alpha = 0.18f) else MaterialTheme.colorScheme.surfaceVariant
+    val border = if (failed) accent.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outlineVariant
+    val content = if (failed) accent else MaterialTheme.colorScheme.onSurface
+
+    Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onToggle)
-            .padding(vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .clip(RoundedCornerShape(999.dp))
+            .background(background)
+            .border(BorderStroke(1.dp, border), RoundedCornerShape(999.dp))
+            .combinedClickable(onClick = onClick, onLongClick = onLongClick)
+            .padding(horizontal = 16.dp, vertical = 11.dp)
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = if (part.quantity > 1) "${part.name} ×${part.quantity}" else part.name,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-        Spacer(Modifier.width(8.dp))
-        Chip(label = part.status.label, color = color, compact = true)
-        IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
-            Icon(
-                Icons.Outlined.Close,
-                contentDescription = "Supprimer la pièce",
-                modifier = Modifier.size(16.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        Text(
+            text = if (part.quantity > 1) "${part.name} ×${part.quantity}" else part.name,
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = if (failed) FontWeight.SemiBold else FontWeight.Medium,
+            color = content
+        )
     }
-}
-
-@Composable
-private fun AddPartDialog(onDismiss: () -> Unit, onConfirm: (String, Int) -> Unit) {
-    var name by remember { mutableStateOf("") }
-    var quantity by remember { mutableStateOf("1") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Ajouter une pièce") },
-        text = {
-            Column {
-                FormTextField("Nom", name, { name = it }, placeholder = "Couvercle, clip, charnière…")
-                Spacer(Modifier.height(10.dp))
-                FormTextField(
-                    "Quantité", quantity, { quantity = it.filterDigits() },
-                    keyboardType = KeyboardType.Number
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = { onConfirm(name.trim(), quantity.toIntOrZero().coerceAtLeast(1)) },
-                enabled = name.isNotBlank()
-            ) { Text("Ajouter") }
-        },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Annuler") } }
-    )
-}
-
-private fun partsSummary(parts: List<PrintPart>): String {
-    val ok = parts.count { it.status == PartStatus.OK }
-    val redo = parts.count { it.status == PartStatus.A_REFAIRE }
-    val todo = parts.count { it.status == PartStatus.A_FAIRE }
-    return buildList {
-        if (ok > 0) add("$ok ok")
-        if (redo > 0) add("$redo à refaire")
-        if (todo > 0) add("$todo en attente")
-    }.joinToString(" · ").ifBlank { "${parts.size} pièce(s)" }
 }

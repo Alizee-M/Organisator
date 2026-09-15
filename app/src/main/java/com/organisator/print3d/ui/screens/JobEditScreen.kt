@@ -1,9 +1,10 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 
 package com.organisator.print3d.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,6 +42,7 @@ import com.organisator.print3d.data.PRINTERS
 import com.organisator.print3d.data.Project
 import com.organisator.print3d.data.Settings
 import com.organisator.print3d.ui.components.AppCard
+import com.organisator.print3d.ui.components.Chip
 import com.organisator.print3d.ui.components.ChipSelector
 import com.organisator.print3d.ui.components.DateTimeField
 import com.organisator.print3d.ui.components.DropdownField
@@ -55,7 +57,7 @@ private val RESIN_TYPES = listOf(
     "Flexible", "Transparente", "Castable", "Dentaire", "Haute température"
 )
 private val LAYER_HEIGHTS = listOf("20", "25", "30", "35", "40", "50", "60", "80", "100")
-private const val NO_PROJECT = "Aucun projet"
+internal const val NO_PROJECT = "Aucun projet"
 
 @Composable
 fun JobEditScreen(
@@ -63,7 +65,7 @@ fun JobEditScreen(
     projects: List<Project>,
     settings: Settings,
     preselectedProjectId: Long?,
-    onSave: (PrintJob) -> Unit,
+    onSave: (PrintJob, String) -> Unit,
     onDelete: (PrintJob) -> Unit,
     onBack: () -> Unit
 ) {
@@ -95,6 +97,7 @@ fun JobEditScreen(
     var reminderEnabled by remember(base) { mutableStateOf(base?.reminderEnabled ?: false) }
     var reminderAt by remember(base) { mutableStateOf(base?.reminderAt) }
     var notes by remember(base) { mutableStateOf(base?.notes ?: "") }
+    var partsText by remember(base) { mutableStateOf("") }
     var showDelete by remember { mutableStateOf(false) }
 
     val projectOptions = remember(projects) { listOf(NO_PROJECT) + projects.map { it.name } }
@@ -299,6 +302,41 @@ fun JobEditScreen(
             }
 
             AppCard {
+                SectionHeader(
+                    title = "Pièces",
+                    subtitle = "Un mot par pièce, séparés par des espaces"
+                )
+                Spacer(Modifier.height(10.dp))
+                FormTextField(
+                    label = if (base == null) "Pièces du plateau" else "Ajouter des pièces",
+                    value = partsText,
+                    onValueChange = { partsText = it },
+                    placeholder = "tête bras jambes torse",
+                    singleLine = false,
+                    minLines = 2
+                )
+                val preview = remember(partsText) { partsText.split(Regex("[\\s,;]+")).filter { it.isNotBlank() } }
+                if (preview.isNotEmpty()) {
+                    Spacer(Modifier.height(10.dp))
+                    FlowRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        preview.forEach { name ->
+                            Chip(label = name, color = MaterialTheme.colorScheme.primary, compact = false)
+                        }
+                    }
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = "${preview.size} pièce${if (preview.size > 1) "s" else ""} seront créées. " +
+                            "Vous pourrez les marquer ratées depuis la fiche du plateau.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            AppCard {
                 SectionHeader("Mémo")
                 Spacer(Modifier.height(10.dp))
                 FormTextField(
@@ -338,7 +376,7 @@ fun JobEditScreen(
                         startedAt = if (status == JobStatus.EN_COURS && base?.startedAt == null)
                             System.currentTimeMillis() else base?.startedAt
                     )
-                    onSave(job)
+                    onSave(job, partsText)
                 },
                 enabled = name.isNotBlank(),
                 modifier = Modifier

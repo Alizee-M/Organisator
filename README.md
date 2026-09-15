@@ -20,8 +20,17 @@ de résine consommé et ses coûts annexes, plus un mémo libre.
 à jour en continu.
 
 **Résultat du plateau** — on note si tout le plateau est sorti correctement ou
-s'il reste des pièces à refaire. Chaque pièce du plateau peut être listée et
-suivie individuellement (`À faire` → `Imprimée` → `À refaire`).
+s'il reste des pièces à refaire.
+
+**Pièces** — à la création d'un plateau, une saisie libre (« tête bras jambes »)
+devient une pièce par mot, les espaces servant de séparateur. Chaque pièce
+s'affiche ensuite comme un bouton sur la fiche du plateau : un appui la passe en
+rouge, ce qui la range dans les pièces à refaire du projet ; un appui long la
+retire.
+
+**Entretien** — un journal par imprimante : film FEP, écran LCD, nettoyage,
+calibration, plateau, bidon de résine. Chaque intervention porte sa date, une
+remarque et le compteur de couches relevé ce jour-là, le meilleur repère d'usure.
 
 **Projets** — regroupent plusieurs plateaux, avec avancement, temps et coût
 cumulés, photo, couleur de repérage et échéance. La photo est choisie dans la

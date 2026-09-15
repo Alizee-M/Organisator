@@ -13,6 +13,7 @@ class PrintRepository(context: Context) {
     private val jobDao = db.printJobDao()
     private val projectDao = db.projectDao()
     private val partDao = db.printPartDao()
+    private val maintenanceDao = db.maintenanceDao()
     private val scheduler = ReminderScheduler(context)
 
     val settingsStore = SettingsStore(context)
@@ -21,6 +22,7 @@ class PrintRepository(context: Context) {
     fun observeJobs(): Flow<List<PrintJob>> = jobDao.observeAll()
     fun observeProjects(): Flow<List<Project>> = projectDao.observeAll()
     fun observeParts(): Flow<List<PrintPart>> = partDao.observeAll()
+    fun observeMaintenance(): Flow<List<MaintenanceEntry>> = maintenanceDao.observeAll()
     fun observePartsForJob(jobId: Long): Flow<List<PrintPart>> = partDao.observeForJob(jobId)
     fun observeJob(id: Long): Flow<PrintJob?> = jobDao.observeById(id)
 
@@ -93,6 +95,34 @@ class PrintRepository(context: Context) {
         }
 
     suspend fun deletePart(part: PrintPart) = partDao.delete(part)
+
+    /**
+     * Découpe une saisie libre en pièces : « tête bras jambes » donne trois
+     * entrées. Les doublons déjà présents sur le plateau sont ignorés.
+     */
+    suspend fun addParts(jobId: Long, raw: String) {
+        val existing = partDao.observeForJob(jobId).first().map { it.name.lowercase() }.toHashSet()
+        raw.split(SEPARATORS)
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .forEach { name ->
+                if (existing.add(name.lowercase())) {
+                    partDao.insert(PrintPart(jobId = jobId, name = name, status = PartStatus.OK))
+                }
+            }
+    }
+
+    suspend fun upsertMaintenance(entry: MaintenanceEntry): Long =
+        if (entry.id == 0L) maintenanceDao.insert(entry) else {
+            maintenanceDao.update(entry); entry.id
+        }
+
+    suspend fun deleteMaintenance(entry: MaintenanceEntry) = maintenanceDao.delete(entry)
+
+    private companion object {
+        /** Espaces avant tout, mais virgules et points-virgules dépannent aussi. */
+        val SEPARATORS = Regex("[\\s,;]+")
+    }
 
     /** Réarme tous les rappels encore à venir (après un redémarrage de l'appareil). */
     suspend fun rescheduleAllReminders() {

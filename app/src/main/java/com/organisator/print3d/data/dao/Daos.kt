@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.organisator.print3d.data.MaintenanceEntry
 import com.organisator.print3d.data.PrintJob
 import com.organisator.print3d.data.PrintPart
 import com.organisator.print3d.data.Project
@@ -51,6 +52,21 @@ interface PrintJobDao {
 
     @Delete
     suspend fun delete(job: PrintJob)
+}
+
+@Dao
+interface MaintenanceDao {
+    @Query("SELECT * FROM maintenance ORDER BY date DESC")
+    fun observeAll(): Flow<List<MaintenanceEntry>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(entry: MaintenanceEntry): Long
+
+    @Update
+    suspend fun update(entry: MaintenanceEntry)
+
+    @Delete
+    suspend fun delete(entry: MaintenanceEntry)
 }
 
 @Dao

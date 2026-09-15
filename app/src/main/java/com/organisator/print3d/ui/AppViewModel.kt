@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.organisator.print3d.data.JobStatus
+import com.organisator.print3d.data.MaintenanceEntry
 import com.organisator.print3d.data.PartStatus
 import com.organisator.print3d.data.PrintJob
 import com.organisator.print3d.data.PrintPart
@@ -32,6 +33,7 @@ data class AppState(
     val jobs: List<PrintJob> = emptyList(),
     val projects: List<Project> = emptyList(),
     val parts: List<PrintPart> = emptyList(),
+    val maintenance: List<MaintenanceEntry> = emptyList(),
     val settings: Settings = Settings(),
     val loaded: Boolean = false
 )
@@ -71,9 +73,10 @@ class AppViewModel(private val repository: PrintRepository) : ViewModel() {
         repository.observeJobs(),
         repository.observeProjects(),
         repository.observeParts(),
+        repository.observeMaintenance(),
         repository.settingsStore.observe()
-    ) { jobs, projects, parts, settings ->
-        AppState(jobs, projects, parts, settings, loaded = true)
+    ) { jobs, projects, parts, maintenance, settings ->
+        AppState(jobs, projects, parts, maintenance, settings, loaded = true)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppState())
 
     private val _statsRange = MutableStateFlow(StatsRange.MONTH)
@@ -93,6 +96,16 @@ class AppViewModel(private val repository: PrintRepository) : ViewModel() {
 
     fun saveJob(job: PrintJob, onSaved: (Long) -> Unit = {}) = viewModelScope.launch {
         onSaved(repository.upsertJob(job))
+    }
+
+    /** Rattache un plateau à un projet, y compris pendant qu'il imprime. */
+    fun setJobProject(job: PrintJob, projectId: Long?) = viewModelScope.launch {
+        repository.upsertJob(job.copy(projectId = projectId))
+    }
+
+    /** Crée une pièce par mot saisi : « tête bras » donne deux boutons. */
+    fun addParts(jobId: Long, raw: String) = viewModelScope.launch {
+        repository.addParts(jobId, raw)
     }
 
     fun deleteJob(job: PrintJob) = viewModelScope.launch { repository.deleteJob(job) }
@@ -162,13 +175,23 @@ class AppViewModel(private val repository: PrintRepository) : ViewModel() {
 
     fun deletePart(part: PrintPart) = viewModelScope.launch { repository.deletePart(part) }
 
-    fun cyclePartStatus(part: PrintPart) = viewModelScope.launch {
-        val next = when (part.status) {
-            PartStatus.A_FAIRE -> PartStatus.OK
-            PartStatus.OK -> PartStatus.A_REFAIRE
-            PartStatus.A_REFAIRE -> PartStatus.A_FAIRE
-        }
+    /**
+     * Un appui bascule la pièce entre « rien à signaler » et « à refaire » :
+     * deux états suffisent à marquer un raté, le troisième ne servait à rien.
+     */
+    fun togglePartFailed(part: PrintPart) = viewModelScope.launch {
+        val next = if (part.status == PartStatus.A_REFAIRE) PartStatus.OK else PartStatus.A_REFAIRE
         repository.upsertPart(part.copy(status = next))
+    }
+
+    // --- Entretien des imprimantes ------------------------------------------
+
+    fun saveMaintenance(entry: MaintenanceEntry) = viewModelScope.launch {
+        repository.upsertMaintenance(entry)
+    }
+
+    fun deleteMaintenance(entry: MaintenanceEntry) = viewModelScope.launch {
+        repository.deleteMaintenance(entry)
     }
 
     // --- Réglages -----------------------------------------------------------

@@ -45,7 +45,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.background
 import com.organisator.print3d.ui.components.LocalImage
 import com.organisator.print3d.ui.components.ProgressBar
+import com.organisator.print3d.ui.components.Chip
 import com.organisator.print3d.ui.components.SectionHeader
+import com.organisator.print3d.ui.theme.statusColor
 import com.organisator.print3d.ui.components.StatTile
 import com.organisator.print3d.ui.components.StatusChip
 import com.organisator.print3d.util.formatDate
@@ -72,6 +74,14 @@ fun ProjectDetailScreen(
     }
     val color = parseColor(project.colorHex, MaterialTheme.colorScheme.primary)
     val done = jobs.count { it.status == JobStatus.TERMINE }
+
+    // Toutes les pièces ratées du projet, rassemblées avec le plateau d'origine.
+    val jobNames = remember(jobs) { jobs.associate { it.id to it.name } }
+    val partsToRedo = remember(state.parts, jobNames) {
+        state.parts
+            .filter { it.status == PartStatus.A_REFAIRE && it.jobId in jobNames }
+            .sortedBy { jobNames[it.jobId] }
+    }
 
     Scaffold(
         topBar = {
@@ -172,6 +182,38 @@ fun ProjectDetailScreen(
                         ),
                         modifier = Modifier.weight(1f)
                     )
+                }
+            }
+
+            if (partsToRedo.isNotEmpty()) {
+                item {
+                    AppCard {
+                        SectionHeader(
+                            title = "Pièces à refaire",
+                            subtitle = "${partsToRedo.size} pièce${if (partsToRedo.size > 1) "s" else ""} " +
+                                "marquée${if (partsToRedo.size > 1) "s" else ""} ratée${if (partsToRedo.size > 1) "s" else ""}"
+                        )
+                        Spacer(Modifier.height(12.dp))
+                        partsToRedo.forEach { part ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                            ) {
+                                Chip(
+                                    label = part.name,
+                                    color = statusColor(JobStatus.A_REFAIRE),
+                                    compact = true
+                                )
+                                Text(
+                                    text = jobNames[part.jobId].orEmpty(),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.padding(start = 10.dp),
+                                    maxLines = 1
+                                )
+                            }
+                        }
+                    }
                 }
             }
 

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,11 +39,11 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.organisator.print3d.ui.theme.AppIcons
-import com.organisator.print3d.data.PrintPart
 import com.organisator.print3d.ui.screens.DashboardScreen
 import com.organisator.print3d.ui.screens.JobDetailScreen
 import com.organisator.print3d.ui.screens.JobEditScreen
 import com.organisator.print3d.ui.screens.JobsScreen
+import com.organisator.print3d.ui.screens.MaintenanceScreen
 import com.organisator.print3d.ui.screens.ProjectDetailScreen
 import com.organisator.print3d.ui.screens.ProjectEditScreen
 import com.organisator.print3d.ui.screens.ProjectsScreen
@@ -57,7 +58,8 @@ private enum class Tab(
     PROJECTS("projects", "Projets", AppIcons.Projet),
     JOBS("jobs", "Plateaux", AppIcons.Plateau),
     DASHBOARD("dashboard", "Atelier", Icons.Outlined.Home),
-    STATS("stats", "Stats", AppIcons.Stats)
+    STATS("stats", "Stats", AppIcons.Stats),
+    MAINTENANCE("maintenance", "Entretien", Icons.Outlined.Build)
 }
 
 @Composable
@@ -127,7 +129,8 @@ fun OrganisatorNavHost(
             }
         },
         floatingActionButton = {
-            if (tab != null && tab != Tab.STATS) {
+            // Ces deux écrans portent leurs propres actions.
+            if (tab != null && tab != Tab.STATS && tab != Tab.MAINTENANCE) {
                 FloatingActionButton(
                     onClick = {
                         if (tab == Tab.PROJECTS) navController.navigate("projectEdit/0")
@@ -195,6 +198,16 @@ fun OrganisatorNavHost(
                 )
             }
 
+            composable(Tab.MAINTENANCE.route) {
+                MaintenanceScreen(
+                    state = state,
+                    now = now,
+                    onSave = viewModel::saveMaintenance,
+                    onDelete = viewModel::deleteMaintenance,
+                    contentPadding = listPadding
+                )
+            }
+
             composable("settings") {
                 val themeMode by viewModel.themeMode.collectAsState()
                 SettingsScreen(
@@ -230,10 +243,10 @@ fun OrganisatorNavHost(
                         onEdit = { navController.navigate("jobEdit/${job.id}?projectId=0") },
                         onStatus = { viewModel.setStatus(job, it) },
                         onOutcome = { viewModel.setPlateOutcome(job, it) },
-                        onAddPart = { name, qty ->
-                            viewModel.savePart(PrintPart(jobId = job.id, name = name, quantity = qty))
-                        },
-                        onTogglePart = viewModel::cyclePartStatus,
+                        projects = state.projects,
+                        onProjectChange = { viewModel.setJobProject(job, it) },
+                        onAddParts = { raw -> viewModel.addParts(job.id, raw) },
+                        onTogglePart = viewModel::togglePartFailed,
                         onDeletePart = viewModel::deletePart,
                         onReprint = {
                             viewModel.duplicateForReprint(job) { newId ->
@@ -261,8 +274,9 @@ fun OrganisatorNavHost(
                     projects = state.projects,
                     settings = state.settings,
                     preselectedProjectId = projectId,
-                    onSave = { job ->
+                    onSave = { job, partsText ->
                         viewModel.saveJob(job) { savedId ->
+                            if (partsText.isNotBlank()) viewModel.addParts(savedId, partsText)
                             if (existing == null) {
                                 navController.navigate("job/$savedId") {
                                     popUpTo("jobEdit/{jobId}?projectId={projectId}") { inclusive = true }

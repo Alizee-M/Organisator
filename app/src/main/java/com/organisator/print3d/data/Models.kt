@@ -105,6 +105,36 @@ data class PrintJob(
     val updatedAt: Long = System.currentTimeMillis()
 )
 
+/** Nature d'une intervention d'entretien sur une machine. */
+enum class MaintenanceKind(val label: String) {
+    FILM_FEP("Film FEP"),
+    ECRAN_LCD("Écran LCD"),
+    NETTOYAGE("Nettoyage"),
+    CALIBRATION("Calibration"),
+    PLATEAU("Plateau"),
+    RESINE("Bidon de résine"),
+    AUTRE("Autre")
+}
+
+/**
+ * Une intervention sur une imprimante. Le compteur de couches relevé ce jour-là
+ * sert de repère d'usure : c'est lui qui dit quand le prochain changement
+ * approche, plus sûrement que la date seule.
+ */
+@Entity(
+    tableName = "maintenance",
+    indices = [Index("printer"), Index("date")]
+)
+data class MaintenanceEntry(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val printer: String,
+    val kind: MaintenanceKind = MaintenanceKind.FILM_FEP,
+    val date: Long = System.currentTimeMillis(),
+    /** Compteur de couches de la machine au moment de l'intervention. */
+    val layerCount: Int = 0,
+    val notes: String = ""
+)
+
 @Entity(
     tableName = "print_parts",
     indices = [Index("jobId")],

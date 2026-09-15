@@ -7,13 +7,14 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.organisator.print3d.data.dao.MaintenanceDao
 import com.organisator.print3d.data.dao.PrintJobDao
 import com.organisator.print3d.data.dao.PrintPartDao
 import com.organisator.print3d.data.dao.ProjectDao
 
 @Database(
-    entities = [Project::class, PrintJob::class, PrintPart::class],
-    version = 3,
+    entities = [Project::class, PrintJob::class, PrintPart::class, MaintenanceEntry::class],
+    version = 4,
     exportSchema = true
 )
 @TypeConverters(Converters::class)
@@ -21,6 +22,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun projectDao(): ProjectDao
     abstract fun printJobDao(): PrintJobDao
     abstract fun printPartDao(): PrintPartDao
+    abstract fun maintenanceDao(): MaintenanceDao
 
     companion object {
         @Volatile private var instance: AppDatabase? = null
@@ -30,7 +32,27 @@ abstract class AppDatabase : RoomDatabase() {
                 context.applicationContext,
                 AppDatabase::class.java,
                 "organisator.db"
-            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3).build().also { instance = it }
+            ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build().also { instance = it }
+        }
+
+        /** Ajout du journal d'entretien des imprimantes. */
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `maintenance` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `printer` TEXT NOT NULL,
+                        `kind` TEXT NOT NULL,
+                        `date` INTEGER NOT NULL,
+                        `layerCount` INTEGER NOT NULL,
+                        `notes` TEXT NOT NULL
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_maintenance_printer` ON `maintenance` (`printer`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_maintenance_date` ON `maintenance` (`date`)")
+            }
         }
 
         /** Ajout de la photo de projet. */
