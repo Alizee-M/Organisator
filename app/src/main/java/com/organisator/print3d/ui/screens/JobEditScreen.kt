@@ -37,6 +37,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.organisator.print3d.data.JobStatus
 import com.organisator.print3d.data.PrintJob
+import com.organisator.print3d.data.PRINTERS
 import com.organisator.print3d.data.Project
 import com.organisator.print3d.data.Settings
 import com.organisator.print3d.ui.components.AppCard
@@ -148,7 +149,13 @@ fun JobEditScreen(
                 Spacer(Modifier.height(10.dp))
                 FormTextField("Fichier imprimé", fileName, { fileName = it }, placeholder = "boitier_v2.3mf")
                 Spacer(Modifier.height(10.dp))
-                FormTextField("Imprimante", printer, { printer = it }, placeholder = "Ex. A1 mini")
+                DropdownField(
+                    label = "Imprimante",
+                    value = printer,
+                    options = PRINTERS,
+                    allowCustom = false,
+                    onSelect = { printer = it }
+                )
             }
 
             AppCard {

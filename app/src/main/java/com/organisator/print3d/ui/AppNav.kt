@@ -54,9 +54,9 @@ private enum class Tab(
     val label: String,
     val icon: ImageVector
 ) {
-    DASHBOARD("dashboard", "Atelier", Icons.Outlined.Home),
-    JOBS("jobs", "Plateaux", AppIcons.Plateau),
     PROJECTS("projects", "Projets", AppIcons.Projet),
+    JOBS("jobs", "Plateaux", AppIcons.Plateau),
+    DASHBOARD("dashboard", "Atelier", Icons.Outlined.Home),
     STATS("stats", "Stats", AppIcons.Stats)
 }
 
@@ -113,7 +113,7 @@ fun OrganisatorNavHost(
                             onClick = {
                                 if (tab != entry) {
                                     navController.navigate(entry.route) {
-                                        popUpTo(Tab.DASHBOARD.route) { saveState = true }
+                                        popUpTo(Tab.PROJECTS.route) { saveState = true }
                                         launchSingleTop = true
                                         restoreState = true
                                     }
@@ -149,7 +149,7 @@ fun OrganisatorNavHost(
 
         NavHost(
             navController = navController,
-            startDestination = Tab.DASHBOARD.route,
+            startDestination = Tab.PROJECTS.route,
             modifier = Modifier.fillMaxSize()
         ) {
             composable(Tab.DASHBOARD.route) {

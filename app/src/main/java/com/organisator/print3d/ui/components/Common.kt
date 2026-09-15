@@ -46,7 +46,7 @@ fun AppCard(
 ) {
     Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(22.dp),
         color = MaterialTheme.colorScheme.surface,
         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {

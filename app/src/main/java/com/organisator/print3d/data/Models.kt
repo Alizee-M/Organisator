@@ -30,6 +30,14 @@ enum class PartStatus(val label: String) {
     A_REFAIRE("À refaire")
 }
 
+/** Le parc de l'atelier : les plateaux se rattachent à l'une de ces machines. */
+val PRINTERS = listOf(
+    "M7 Max",
+    "M7 Pro Gris Gauche",
+    "M7 Pro Gris Droite",
+    "M7 Pro Clear"
+)
+
 @Entity(tableName = "projects")
 data class Project(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,

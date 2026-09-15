@@ -33,10 +33,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.organisator.print3d.data.PRINTERS
 import com.organisator.print3d.data.Settings
 import com.organisator.print3d.data.ThemeMode
 import com.organisator.print3d.ui.components.ChipSelector
 import com.organisator.print3d.ui.components.AppCard
+import com.organisator.print3d.ui.components.DropdownField
 import com.organisator.print3d.ui.components.FormTextField
 import com.organisator.print3d.ui.components.SectionHeader
 import com.organisator.print3d.ui.components.TwoColumns
@@ -115,7 +117,15 @@ fun SettingsScreen(
                 SectionHeader("Valeurs par défaut", subtitle = "Pré-remplissent chaque nouveau plateau")
                 Spacer(Modifier.height(10.dp))
                 TwoColumns(
-                    left = { FormTextField("Imprimante", printer, { printer = it }) },
+                    left = {
+                        DropdownField(
+                            label = "Imprimante",
+                            value = printer,
+                            options = PRINTERS,
+                            allowCustom = false,
+                            onSelect = { printer = it }
+                        )
+                    },
                     right = { FormTextField("Résine", resinType, { resinType = it }) }
                 )
                 Spacer(Modifier.height(10.dp))

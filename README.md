@@ -6,8 +6,12 @@ résultat des plateaux, statistiques et rappels.
 
 ## Ce que fait l'application
 
+**Projets** en écran d'accueil — la liste sert de menu : photo à gauche, nom et
+avancement à droite, un appui ouvre le détail et ses plateaux.
+
 **Plateaux** — l'unité de suivi. Chaque plateau porte son nom, le fichier
-imprimé, l'imprimante, le type de résine et sa couleur, la hauteur de couche,
+imprimé, l'imprimante choisie dans le parc (M7 Max, M7 Pro Gris Gauche,
+M7 Pro Gris Droite, M7 Pro Clear), le type de résine et sa couleur, la hauteur de couche,
 l'échelle, le nombre d'exemplaires, le temps estimé et le temps réel, le volume
 de résine consommé et ses coûts annexes, plus un mémo libre.
 

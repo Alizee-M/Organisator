@@ -107,7 +107,13 @@ fun DropdownField(
             shape = RoundedCornerShape(14.dp),
             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
             modifier = Modifier
-                .menuAnchor(androidx.compose.material3.MenuAnchorType.PrimaryEditable, true)
+                // Un champ en lecture seule ne s'ouvre au toucher qu'avec l'ancrage
+                // « non éditable » : sans lui, la liste reste fermée.
+                .menuAnchor(
+                    if (allowCustom) androidx.compose.material3.MenuAnchorType.PrimaryEditable
+                    else androidx.compose.material3.MenuAnchorType.PrimaryNotEditable,
+                    true
+                )
                 .fillMaxWidth()
         )
         ExposedDropdownMenu(
