@@ -3,7 +3,6 @@
 package com.organisator.print3d.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,6 +49,7 @@ import com.organisator.print3d.ui.components.EmptyState
 import com.organisator.print3d.ui.components.JobRow
 import com.organisator.print3d.ui.theme.AppIcons
 import com.organisator.print3d.ui.theme.StatusPalette
+import com.organisator.print3d.ui.theme.isDarkTheme
 import com.organisator.print3d.util.formatMinutes
 import com.organisator.print3d.util.formatMoney
 import com.organisator.print3d.util.parseColor
@@ -78,7 +78,7 @@ fun JobsScreen(
     var statusFilter by rememberSaveable { mutableStateOf(initialStatusFilter) }
     var projectFilter by rememberSaveable { mutableStateOf<Long?>(null) }
     var sort by rememberSaveable { mutableStateOf(JobSort.PROJET) }
-    val dark = isSystemInDarkTheme()
+    val dark = isDarkTheme()
     val neutralChipColor = MaterialTheme.colorScheme.primary
 
     val projectsById = remember(state.projects) { state.projects.associateBy { it.id } }

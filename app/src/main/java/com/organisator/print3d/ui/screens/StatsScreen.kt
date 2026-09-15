@@ -1,6 +1,5 @@
 package com.organisator.print3d.ui.screens
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,6 +38,7 @@ import com.organisator.print3d.ui.components.ProgressBar
 import com.organisator.print3d.ui.components.SectionHeader
 import com.organisator.print3d.ui.components.StatTile
 import com.organisator.print3d.ui.theme.StatusPalette
+import com.organisator.print3d.ui.theme.isDarkTheme
 import com.organisator.print3d.util.formatMillilitres
 import com.organisator.print3d.util.formatMinutes
 import com.organisator.print3d.util.formatMoney
@@ -60,7 +60,7 @@ fun StatsScreen(
     modifier: Modifier = Modifier
 ) {
     var metric by rememberSaveable { mutableStateOf(Metric.TEMPS) }
-    val dark = isSystemInDarkTheme()
+    val dark = isDarkTheme()
 
     LazyColumn(
         modifier = modifier.fillMaxSize(),

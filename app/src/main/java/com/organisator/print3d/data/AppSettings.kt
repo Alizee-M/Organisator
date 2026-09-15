@@ -5,6 +5,13 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
+/** Apparence choisie par l'utilisateur, indépendante des réglages de coût. */
+enum class ThemeMode(val label: String) {
+    SYSTEME("Système"),
+    CLAIR("Clair"),
+    SOMBRE("Sombre")
+}
+
 /** Réglages par défaut réutilisés pour chiffrer chaque plateau. */
 data class Settings(
     val currency: String = "€",
@@ -52,6 +59,24 @@ class SettingsStore(context: Context) {
             .apply()
     }
 
+    fun readThemeMode(): ThemeMode = runCatching {
+        ThemeMode.valueOf(prefs.getString(KEY_THEME, ThemeMode.SYSTEME.name) ?: ThemeMode.SYSTEME.name)
+    }.getOrDefault(ThemeMode.SYSTEME)
+
+    fun writeThemeMode(mode: ThemeMode) {
+        prefs.edit().putString(KEY_THEME, mode.name).apply()
+    }
+
+    fun observeThemeMode(): Flow<ThemeMode> = callbackFlow {
+        trySend(readThemeMode())
+        val listener = android.content.SharedPreferences
+            .OnSharedPreferenceChangeListener { _, key ->
+                if (key == KEY_THEME) trySend(readThemeMode())
+            }
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        awaitClose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
     fun observe(): Flow<Settings> = callbackFlow {
         trySend(read())
         val listener = android.content.SharedPreferences
@@ -70,5 +95,6 @@ class SettingsStore(context: Context) {
         const val KEY_ENERGY = "energy"
         const val KEY_MACHINE_RATE = "machine_rate"
         const val KEY_CONSUMABLES = "consumables"
+        const val KEY_THEME = "theme_mode"
     }
 }

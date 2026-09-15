@@ -196,8 +196,11 @@ fun OrganisatorNavHost(
             }
 
             composable("settings") {
+                val themeMode by viewModel.themeMode.collectAsState()
                 SettingsScreen(
                     settings = state.settings,
+                    themeMode = themeMode,
+                    onThemeChange = viewModel::setThemeMode,
                     appVersion = appVersion,
                     exactAlarmsAllowed = exactAlarmsAllowed(),
                     notificationsAllowed = notificationsAllowed(),

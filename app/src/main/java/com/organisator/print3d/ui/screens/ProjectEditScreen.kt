@@ -8,7 +8,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -59,6 +58,7 @@ import com.organisator.print3d.ui.components.DateTimeField
 import com.organisator.print3d.ui.components.FormTextField
 import com.organisator.print3d.ui.components.SectionHeader
 import com.organisator.print3d.ui.theme.StatusPalette
+import com.organisator.print3d.ui.theme.isDarkTheme
 import com.organisator.print3d.util.parseColor
 
 private val PROJECT_COLORS = listOf(
@@ -76,7 +76,7 @@ fun ProjectEditScreen(
     onDiscardPhoto: (String?) -> Unit,
     onBack: () -> Unit
 ) {
-    val dark = isSystemInDarkTheme()
+    val dark = isDarkTheme()
     var name by remember(existing) { mutableStateOf(existing?.name ?: "") }
     var description by remember(existing) { mutableStateOf(existing?.description ?: "") }
     var colorHex by remember(existing) { mutableStateOf(existing?.colorHex ?: PROJECT_COLORS.first()) }

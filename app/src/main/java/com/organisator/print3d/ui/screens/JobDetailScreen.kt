@@ -3,7 +3,6 @@
 package com.organisator.print3d.ui.screens
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -61,6 +60,7 @@ import com.organisator.print3d.ui.components.ProgressBar
 import com.organisator.print3d.ui.components.SectionHeader
 import com.organisator.print3d.ui.components.StatusChip
 import com.organisator.print3d.ui.theme.StatusPalette
+import com.organisator.print3d.ui.theme.isDarkTheme
 import com.organisator.print3d.ui.theme.statusColor
 import com.organisator.print3d.util.formatDateTime
 import com.organisator.print3d.util.formatMillilitres
@@ -84,7 +84,7 @@ fun JobDetailScreen(
     onDeletePart: (PrintPart) -> Unit,
     onReprint: () -> Unit
 ) {
-    val dark = isSystemInDarkTheme()
+    val dark = isDarkTheme()
     var showAddPart by remember { mutableStateOf(false) }
     val cost = job.costBreakdown(settings, now)
 
@@ -390,7 +390,7 @@ private fun PartRow(
     onToggle: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val dark = isSystemInDarkTheme()
+    val dark = isDarkTheme()
     val color = when (part.status) {
         PartStatus.A_FAIRE -> StatusPalette.color(JobStatus.A_FAIRE, dark)
         PartStatus.OK -> StatusPalette.color(JobStatus.TERMINE, dark)

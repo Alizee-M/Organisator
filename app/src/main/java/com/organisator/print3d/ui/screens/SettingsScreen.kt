@@ -34,6 +34,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.organisator.print3d.data.Settings
+import com.organisator.print3d.data.ThemeMode
+import com.organisator.print3d.ui.components.ChipSelector
 import com.organisator.print3d.ui.components.AppCard
 import com.organisator.print3d.ui.components.FormTextField
 import com.organisator.print3d.ui.components.SectionHeader
@@ -42,6 +44,8 @@ import com.organisator.print3d.ui.components.TwoColumns
 @Composable
 fun SettingsScreen(
     settings: Settings,
+    themeMode: ThemeMode,
+    onThemeChange: (ThemeMode) -> Unit,
     appVersion: String,
     exactAlarmsAllowed: Boolean,
     notificationsAllowed: Boolean,
@@ -96,6 +100,17 @@ fun SettingsScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            AppCard {
+                SectionHeader("Apparence", subtitle = "Appliquée immédiatement")
+                Spacer(Modifier.height(10.dp))
+                ChipSelector(
+                    options = ThemeMode.entries.toList(),
+                    selected = themeMode,
+                    onSelect = onThemeChange,
+                    labelOf = { it.label }
+                )
+            }
+
             AppCard {
                 SectionHeader("Valeurs par défaut", subtitle = "Pré-remplissent chaque nouveau plateau")
                 Spacer(Modifier.height(10.dp))

@@ -91,7 +91,8 @@ attaché.
 
 ## Architecture
 
-- **Kotlin + Jetpack Compose**, Material 3, thème clair/sombre sobre.
+- **Kotlin + Jetpack Compose**, Material 3, thème clair ou sombre au choix
+  (Système, Clair, Sombre) depuis les réglages.
 - **Room** pour la base locale (`projects`, `print_jobs`, `print_parts`), avec
   migration versionnée.
 - **AlarmManager** pour les rappels, réarmés au boot.

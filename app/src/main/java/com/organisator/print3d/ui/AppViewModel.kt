@@ -16,6 +16,7 @@ import com.organisator.print3d.data.Settings
 import com.organisator.print3d.data.StatsEngine
 import com.organisator.print3d.data.StatsRange
 import com.organisator.print3d.data.StatsSummary
+import com.organisator.print3d.data.ThemeMode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,6 +45,19 @@ class AppViewModel(private val repository: PrintRepository) : ViewModel() {
             withContext(Dispatchers.IO) { repository.cleanupOrphanPhotos() }
         }
     }
+
+    /**
+     * Apparence choisie. Sa valeur initiale est lue de façon synchrone pour que
+     * l'application s'ouvre déjà dans le bon thème, sans passage par le mauvais.
+     */
+    val themeMode: StateFlow<ThemeMode> = repository.settingsStore.observeThemeMode()
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            repository.settingsStore.readThemeMode()
+        )
+
+    fun setThemeMode(mode: ThemeMode) = repository.settingsStore.writeThemeMode(mode)
 
     /** Horloge partagée : fait vivre les compteurs des impressions en cours. */
     val now: StateFlow<Long> = flow {

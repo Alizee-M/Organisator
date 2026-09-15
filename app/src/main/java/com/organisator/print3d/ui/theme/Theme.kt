@@ -7,7 +7,9 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
@@ -16,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.organisator.print3d.data.JobStatus
 import com.organisator.print3d.data.ProjectStatus
+import com.organisator.print3d.data.ThemeMode
 
 // Palette volontairement neutre : gris profonds, un seul accent indigo.
 private val Indigo = Color(0xFF4F46E5)
@@ -78,6 +81,24 @@ private val AppTypography = Typography(
     labelSmall = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Medium, letterSpacing = 0.4.sp)
 )
 
+/**
+ * Thème effectivement appliqué. Les écrans doivent le consulter plutôt que
+ * d'interroger le système : l'utilisateur peut forcer le clair ou le sombre,
+ * et les couleurs de statut doivent suivre ce choix.
+ */
+val LocalDarkTheme = staticCompositionLocalOf { false }
+
+@Composable
+fun isDarkTheme(): Boolean = LocalDarkTheme.current
+
+/** Résout le réglage d'apparence en un booléen « sombre ». */
+@Composable
+fun ThemeMode.resolveDark(): Boolean = when (this) {
+    ThemeMode.SYSTEME -> isSystemInDarkTheme()
+    ThemeMode.CLAIR -> false
+    ThemeMode.SOMBRE -> true
+}
+
 @Composable
 fun OrganisatorTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -94,11 +115,13 @@ fun OrganisatorTheme(
             }
         }
     }
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = AppTypography,
-        content = content
-    )
+    CompositionLocalProvider(LocalDarkTheme provides darkTheme) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = AppTypography,
+            content = content
+        )
+    }
 }
 
 /** Couleurs de statut, déclinées pour rester lisibles dans les deux thèmes. */
@@ -131,8 +154,8 @@ object StatusPalette {
 
 @Composable
 fun statusColor(status: JobStatus): Color =
-    StatusPalette.color(status, isSystemInDarkTheme())
+    StatusPalette.color(status, LocalDarkTheme.current)
 
 @Composable
 fun statusColor(status: ProjectStatus): Color =
-    StatusPalette.color(status, isSystemInDarkTheme())
+    StatusPalette.color(status, LocalDarkTheme.current)

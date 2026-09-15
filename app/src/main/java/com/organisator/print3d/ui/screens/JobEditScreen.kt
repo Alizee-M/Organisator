@@ -2,7 +2,6 @@
 
 package com.organisator.print3d.ui.screens
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -48,6 +47,7 @@ import com.organisator.print3d.ui.components.FormTextField
 import com.organisator.print3d.ui.components.SectionHeader
 import com.organisator.print3d.ui.components.TwoColumns
 import com.organisator.print3d.ui.theme.StatusPalette
+import com.organisator.print3d.ui.theme.isDarkTheme
 
 private val RESIN_TYPES = listOf(
     "Résine standard", "ABS-like", "Water-washable", "Tough",
@@ -66,7 +66,7 @@ fun JobEditScreen(
     onDelete: (PrintJob) -> Unit,
     onBack: () -> Unit
 ) {
-    val dark = isSystemInDarkTheme()
+    val dark = isDarkTheme()
     val base = existing
 
     var name by remember(base) { mutableStateOf(base?.name ?: "") }
