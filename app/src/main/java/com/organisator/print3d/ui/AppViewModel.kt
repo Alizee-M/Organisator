@@ -9,6 +9,7 @@ import com.organisator.print3d.data.JobStatus
 import com.organisator.print3d.data.PartStatus
 import com.organisator.print3d.data.PrintJob
 import com.organisator.print3d.data.PrintPart
+import com.organisator.print3d.data.PhotoCrop
 import com.organisator.print3d.data.PrintRepository
 import com.organisator.print3d.data.Project
 import com.organisator.print3d.data.Settings
@@ -130,6 +131,12 @@ class AppViewModel(private val repository: PrintRepository) : ViewModel() {
     fun importProjectPhoto(uri: Uri, onImported: (String?) -> Unit) = viewModelScope.launch {
         onImported(withContext(Dispatchers.IO) { repository.importPhoto(uri) })
     }
+
+    /** Écrit la zone retenue dans un nouveau fichier et rend son chemin. */
+    fun cropProjectPhoto(path: String, crop: PhotoCrop, onCropped: (String?) -> Unit) =
+        viewModelScope.launch {
+            onCropped(withContext(Dispatchers.IO) { repository.cropPhoto(path, crop) })
+        }
 
     fun discardProjectPhoto(path: String?) = viewModelScope.launch {
         withContext(Dispatchers.IO) { repository.deletePhoto(path) }

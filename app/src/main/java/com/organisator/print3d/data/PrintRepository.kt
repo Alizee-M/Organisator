@@ -77,6 +77,8 @@ class PrintRepository(context: Context) {
     /** Importe une photo et renvoie son chemin local, ou null si la lecture échoue. */
     fun importPhoto(uri: Uri): String? = photoStore.import(uri)
 
+    fun cropPhoto(path: String, crop: PhotoCrop): String? = photoStore.crop(path, crop)
+
     fun deletePhoto(path: String?) = photoStore.delete(path)
 
     /** Efface les photos qu'aucun projet ne référence (import abandonné, projet supprimé). */

@@ -47,7 +47,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.ui.layout.ContentScale
+import com.organisator.print3d.data.PhotoCrop
 import com.organisator.print3d.ui.components.LocalImage
+import com.organisator.print3d.ui.components.PhotoFramingDialog
 import com.organisator.print3d.data.Project
 import com.organisator.print3d.data.ProjectStatus
 import com.organisator.print3d.ui.components.AppCard
@@ -69,6 +72,7 @@ fun ProjectEditScreen(
     onSave: (Project) -> Unit,
     onDelete: (Project) -> Unit,
     onPickPhoto: (android.net.Uri, (String?) -> Unit) -> Unit,
+    onCropPhoto: (String, PhotoCrop, (String?) -> Unit) -> Unit,
     onDiscardPhoto: (String?) -> Unit,
     onBack: () -> Unit
 ) {
@@ -81,6 +85,13 @@ fun ProjectEditScreen(
     var photoPath by remember(existing) { mutableStateOf(existing?.photoPath) }
     var importing by remember { mutableStateOf(false) }
     var importFailed by remember { mutableStateOf(false) }
+    // Photo en attente de cadrage : elle n'est retenue qu'une fois validée.
+    var framingPath by remember(existing) { mutableStateOf<String?>(null) }
+
+    // Un fichier n'est effaçable que s'il n'est pas celui déjà enregistré en base.
+    fun disposeIfTemporary(candidate: String?) {
+        if (candidate != null && candidate != existing?.photoPath) onDiscardPhoto(candidate)
+    }
     var showDelete by remember { mutableStateOf(false) }
 
     val photoPicker = rememberLauncherForActivityResult(
@@ -91,13 +102,7 @@ fun ProjectEditScreen(
         importFailed = false
         onPickPhoto(uri) { imported ->
             importing = false
-            if (imported == null) {
-                importFailed = true
-            } else {
-                // La photo remplacée n'est plus référencée nulle part.
-                if (photoPath != existing?.photoPath) onDiscardPhoto(photoPath)
-                photoPath = imported
-            }
+            if (imported == null) importFailed = true else framingPath = imported
         }
     }
 
@@ -180,6 +185,7 @@ fun ProjectEditScreen(
                         LocalImage(
                             path = photoPath,
                             contentDescription = "Photo du projet",
+                            contentScale = ContentScale.Fit,
                             modifier = Modifier.fillMaxSize()
                         )
                     } else {
@@ -206,8 +212,9 @@ fun ProjectEditScreen(
                                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                             )
                         }) { Text("Remplacer") }
+                        TextButton(onClick = { framingPath = photoPath }) { Text("Recadrer") }
                         TextButton(onClick = {
-                            if (photoPath != existing?.photoPath) onDiscardPhoto(photoPath)
+                            disposeIfTemporary(photoPath)
                             photoPath = null
                         }) { Text("Retirer") }
                     }
@@ -267,6 +274,27 @@ fun ProjectEditScreen(
 
             Spacer(Modifier.height(16.dp))
         }
+    }
+
+    framingPath?.let { pending ->
+        PhotoFramingDialog(
+            path = pending,
+            onCancel = {
+                framingPath = null
+                if (pending != photoPath) disposeIfTemporary(pending)
+            },
+            onConfirm = { crop ->
+                onCropPhoto(pending, crop) { cropped ->
+                    framingPath = null
+                    if (cropped != null) {
+                        val previous = photoPath
+                        photoPath = cropped
+                        disposeIfTemporary(pending)
+                        if (previous != pending && previous != cropped) disposeIfTemporary(previous)
+                    }
+                }
+            }
+        )
     }
 
     if (showDelete && existing != null) {

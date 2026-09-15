@@ -307,6 +307,9 @@ fun OrganisatorNavHost(
                 ProjectEditScreen(
                     existing = existing,
                     onPickPhoto = { uri, onImported -> viewModel.importProjectPhoto(uri, onImported) },
+                    onCropPhoto = { path, crop, onCropped ->
+                        viewModel.cropProjectPhoto(path, crop, onCropped)
+                    },
                     onDiscardPhoto = viewModel::discardProjectPhoto,
                     onSave = { project ->
                         viewModel.saveProject(project) { navController.popBackStack() }

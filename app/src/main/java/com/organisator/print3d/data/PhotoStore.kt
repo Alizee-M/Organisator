@@ -9,6 +9,18 @@ import androidx.exifinterface.media.ExifInterface
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
+import kotlin.math.roundToInt
+
+/** Zone retenue d'une photo, en fractions de l'image source (0 à 1). */
+data class PhotoCrop(
+    val left: Float,
+    val top: Float,
+    val right: Float,
+    val bottom: Float
+) {
+    val isWholeImage: Boolean
+        get() = left <= 0f && top <= 0f && right >= 1f && bottom >= 1f
+}
 
 /**
  * Recopie les photos choisies dans le stockage privé de l'application.
@@ -35,6 +47,32 @@ class PhotoStore(context: Context) {
         }
         if (oriented !== bitmap) bitmap.recycle()
         oriented.recycle()
+        target.absolutePath
+    }.getOrNull()
+
+    /**
+     * Écrit la portion cadrée d'une photo dans un nouveau fichier et rend son
+     * chemin. La source n'est pas supprimée : tant que l'écran d'édition n'a pas
+     * été enregistré, le projet peut encore la référencer.
+     */
+    fun crop(path: String, crop: PhotoCrop): String? = runCatching {
+        val source = BitmapFactory.decodeFile(path) ?: return null
+        val left = (crop.left * source.width).roundToInt().coerceIn(0, source.width - 1)
+        val top = (crop.top * source.height).roundToInt().coerceIn(0, source.height - 1)
+        val right = (crop.right * source.width).roundToInt().coerceIn(left + 1, source.width)
+        val bottom = (crop.bottom * source.height).roundToInt().coerceIn(top + 1, source.height)
+
+        val cropped = if (left == 0 && top == 0 && right == source.width && bottom == source.height) {
+            source
+        } else {
+            Bitmap.createBitmap(source, left, top, right - left, bottom - top)
+        }
+        val target = File(dir, "${UUID.randomUUID()}.jpg")
+        FileOutputStream(target).use { out ->
+            cropped.compress(Bitmap.CompressFormat.JPEG, QUALITY, out)
+        }
+        if (cropped !== source) cropped.recycle()
+        source.recycle()
         target.absolutePath
     }.getOrNull()
 

@@ -41,6 +41,8 @@ import com.organisator.print3d.ui.AppState
 import com.organisator.print3d.ui.components.AppCard
 import com.organisator.print3d.ui.components.EmptyState
 import com.organisator.print3d.ui.components.JobRow
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.background
 import com.organisator.print3d.ui.components.LocalImage
 import com.organisator.print3d.ui.components.ProgressBar
 import com.organisator.print3d.ui.components.SectionHeader
@@ -107,10 +109,12 @@ fun ProjectDetailScreen(
                     LocalImage(
                         path = project.photoPath,
                         contentDescription = "Photo du projet",
+                        contentScale = ContentScale.Fit,
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(16f / 10f)
                             .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                     )
                 }
             }
